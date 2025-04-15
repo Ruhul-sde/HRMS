@@ -115,21 +115,36 @@
                     }
                 });
 
-                // Weekly Trend Chart
+                // Monthly Trend Chart
                 new Chart(document.getElementById('weeklyTrendChart'), {
                     type: 'bar',
                     data: {
-                        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                        labels: [{% for date in month_dates %}'{{ date }}'{% if not loop.last %}, {% endif %}{% endfor %}],
                         datasets: [{
-                            label: 'Attendance Rate',
+                            label: 'Attendance Status',
                             data: [
-                                {{ (stats.present_days / 5 * 100)|round(1) if stats.present_days else 0 }},
-                                {{ (stats.present_days / 5 * 100)|round(1) if stats.present_days else 0 }},
-                                {{ (stats.present_days / 5 * 100)|round(1) if stats.present_days else 0 }},
-                                {{ (stats.present_days / 5 * 100)|round(1) if stats.present_days else 0 }}
+                                {% for date in month_dates %}
+                                    {% if date in attendance_data %}1{% else %}0{% endif %}{% if not loop.last %}, {% endif %}
+                                {% endfor %}
                             ],
-                            backgroundColor: 'rgba(75, 192, 192, 0.5)',
-                            borderColor: 'rgba(75, 192, 192, 1)',
+                            backgroundColor: [
+                                {% for date in month_dates %}
+                                    {% if date in attendance_data %}
+                                        'rgba(75, 192, 192, 0.5)'
+                                    {% else %}
+                                        'rgba(255, 99, 132, 0.5)'
+                                    {% endif %}{% if not loop.last %}, {% endif %}
+                                {% endfor %}
+                            ],
+                            borderColor: [
+                                {% for date in month_dates %}
+                                    {% if date in attendance_data %}
+                                        'rgba(75, 192, 192, 1)'
+                                    {% else %}
+                                        'rgba(255, 99, 132, 1)'
+                                    {% endif %}{% if not loop.last %}, {% endif %}
+                                {% endfor %}
+                            ],
                             borderWidth: 1
                         }]
                     },
@@ -141,7 +156,7 @@
                             },
                             title: {
                                 display: true,
-                                text: 'Weekly Attendance Trend'
+                                text: 'Monthly Attendance Trend'
                             }
                         },
                         scales: {
