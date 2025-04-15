@@ -1,0 +1,67 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leave Status - Geo Attendance System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    {% include 'navbar.html' %}
+    
+    <div class="container">
+        <h1><i class="fas fa-clipboard-list"></i> Leave Status</h1>
+        
+        <div class="card">
+            {% if leaves %}
+                <div class="table-responsive">
+                    <table class="leave-table">
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-calendar"></i> Applied On</th>
+                                <th><i class="fas fa-calendar-day"></i> Period</th>
+                                <th><i class="fas fa-tag"></i> Type</th>
+                                <th><i class="fas fa-comment"></i> Reason</th>
+                                <th><i class="fas fa-info-circle"></i> Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for leave_id, leave in leaves.items() %}
+                            <tr>
+                                <td>{{ leave.applied_on }}</td>
+                                <td>{{ leave.start_date }} to {{ leave.end_date }}</td>
+                                <td><span class="leave-type-badge leave-type-{{ leave.type.lower() }}">{{ leave.type }}</span></td>
+                                <td>{{ leave.reason }}</td>
+                                <td>
+                                    <span class="status-badge status-{{ leave.status.lower() }}">
+                                        <i class="fas fa-circle"></i> {{ leave.status|capitalize }}
+                                    </span>
+                                    {% if leave.comment %}
+                                    <div class="leave-comment">
+                                        <i class="fas fa-comment"></i> {{ leave.comment }}
+                                    </div>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-folder-open"></i>
+                    <p>No leave applications found.</p>
+                </div>
+            {% endif %}
+            
+            <div class="form-actions">
+                <a href="/apply_leave" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Apply New Leave
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

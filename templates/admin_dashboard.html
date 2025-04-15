@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Geo Attendance System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <div class="container">
+        <div class="dashboard-header">
+            <h1><i class="fas fa-tachometer-alt"></i> Admin Dashboard</h1>
+            <p class="dashboard-subtitle">Overview of system statistics and activities</p>
+        </div>
+
+        <div class="admin-dashboard">
+            <div class="stat-card">
+                <div class="icon icon-blue">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="number" id="totalEmployees">{{ stats.total_employees }}</div>
+                <div class="label">Total Employees</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="icon icon-green">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="number" id="presentToday">{{ stats.present_today }}</div>
+                <div class="label">Present Today</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="icon icon-orange">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <div class="number" id="pendingLeaves">{{ stats.pending_leaves }}</div>
+                <div class="label">Pending Leaves</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="icon icon-red">
+                    <i class="fas fa-user-clock"></i>
+                </div>
+                <div class="number" id="absentToday">{{ stats.absent_today }}</div>
+                <div class="label">Absent Today</div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="dashboard-card pending-approvals">
+                <div class="card-header">
+                    <h2><i class="fas fa-clock"></i> Pending Approvals</h2>
+                    <a href="{{ url_for('admin_pending_leaves') }}" class="view-all">View All</a>
+                </div>
+                <div class="approval-list" id="pendingApprovalsList">
+                    {% if pending_leaves %}
+                        {% for emp_id, leaves in pending_leaves.items() %}
+                            {% for leave_id, leave in leaves.items() %}
+                            <div class="approval-item">
+                                <div class="approval-info">
+                                    <div class="employee-name">{{ leave.employee_name }}</div>
+                                    <div class="leave-details">
+                                        <span class="date">{{ leave.start_date }} to {{ leave.end_date }}</span>
+                                        <span class="badge badge-{{ leave.type }}">{{ leave.type }}</span>
+                                    </div>
+                                </div>
+                                <div class="approval-actions">
+                                    <button class="btn-sm btn-success approve-btn" 
+                                            data-emp-id="{{ emp_id }}" 
+                                            data-leave-id="{{ leave_id }}">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    <button class="btn-sm btn-danger reject-btn"
+                                            data-emp-id="{{ emp_id }}" 
+                                            data-leave-id="{{ leave_id }}">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="no-data">
+                            <i class="fas fa-check-circle"></i>
+                            <p>No pending approvals</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="dashboard-card attendance-today">
+                <div class="card-header">
+                    <h2><i class="fas fa-user-check"></i> Today's Attendance</h2>
+                    <a href="{{ url_for('admin_attendance_report') }}" class="view-all">View Report</a>
+                </div>
+                <div class="attendance-list" id="todayAttendanceList">
+                    {% if today_attendance %}
+                        {% for emp in today_attendance %}
+                        <div class="attendance-item">
+                            <div class="employee-info">
+                                <div class="avatar">
+                                    <i class="fas fa-user-circle"></i>
+                                </div>
+                                <div class="details">
+                                    <div class="name">{{ emp.name }}</div>
+                                    <div class="time">
+                                        <i class="fas fa-clock"></i> {{ emp.check_in }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="status">
+                                <span class="badge badge-success">{{ emp.status }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="no-data">
+                            <i class="fas fa-clock"></i>
+                            <p>No attendance records for today</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+</body>
+</html>

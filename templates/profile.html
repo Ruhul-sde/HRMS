@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Akshay Software Technologies</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <div class="profile-container">
+        <div class="profile-header">
+            <h1><i class="fas fa-user-circle"></i> My Profile</h1>
+        </div>
+
+        <div class="profile-grid">
+            <div class="profile-sidebar">
+                <div class="profile-cover"></div>
+                <div class="profile-avatar">
+                    {{ user.name[:1] }}
+                </div>
+
+                <div class="profile-info">
+                    <h2 class="profile-name">{{ user.name }}</h2>
+                    <div class="profile-role">{{ user.role|capitalize }}</div>
+                    <div class="profile-id">{{ user.employee_id }}</div>
+
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">{{ stats.present_days|default(0) }}</div>
+                            <div class="stat-label">Present Days</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">{{ stats.leave_days|default(0) }}</div>
+                            <div class="stat-label">Leave Days</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">{{ stats.attendance_percentage|default(0) }}%</div>
+                            <div class="stat-label">Attendance</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-content">
+                <div class="content-card">
+                    <div class="card-header">
+                        <i class="fas fa-info-circle"></i> Personal Information
+                    </div>
+                    <div class="card-body">
+                        <div class="info-group">
+                            <div class="info-item">
+                                <div class="info-label">Full Name</div>
+                                <div class="info-value">{{ user.name }}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Email</div>
+                                <div class="info-value">{{ user.email }}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Mobile Number</div>
+                                <div class="info-value">{{ user.mobile|default('Not Set') }}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Department</div>
+                                <div class="info-value">{{ user.department|default('Not Set') }}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Job Role</div>
+                                <div class="info-value">{{ user.job_role|default('Not Set') }}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Office Location</div>
+                                <div class="info-value">{{ user.location_name|default('Not Set') }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <div class="card-header">
+                        <i class="fas fa-briefcase"></i> Employment Details
+                    </div>
+                    <div class="card-body">
+                        <div class="info-group">
+                            <div class="info-item">
+                                <div class="info-label">Position</div>
+                                <div class="info-value">{{ user.position|default('Not Set') }}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Join Date</div>
+                                <div class="info-value">{{ user.join_date|default('Not Set') }}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Manager</div>
+                                <div class="info-value">{{ user.manager|default('Not Assigned') }}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Office Location</div>
+                                <div class="info-value">{{ user.location|default('Not Set') }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <div class="card-header">
+                        <i class="fas fa-calendar-check"></i> Leave Balance
+                    </div>
+                    <div class="card-body">
+                        <div class="info-group">
+                            <div class="info-item">
+                                <div class="info-label">Paid Leave (PL)</div>
+                                <div class="info-value">
+                                    <span class="leave-total">{{ leaves.pl_remaining|default(12) }}</span> remaining of
+                                    <span class="leave-allocated">12</span>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Casual Leave (CL)</div>
+                                <div class="info-value">
+                                    <span class="leave-total">{{ leaves.cl_remaining|default(6) }}</span> remaining of
+                                    <span class="leave-allocated">6</span>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Medical Leave (ML)</div>
+                                <div class="info-value">
+                                    <span class="leave-total">{{ leaves.ml_remaining|default(7) }}</span> remaining of
+                                    <span class="leave-allocated">7</span>
+                                </div>
+                            </div>
+                            <div class="leave-progress">
+                                <div class="progress-bar">
+                                    <div class="progress" style="width: {{ (leaves.pl_remaining|default(12) / 12 * 100)|round }}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-actions">
+                    <button class="btn btn-primary" onclick="openEditModal()">
+                        <i class="fas fa-edit"></i> Edit Profile
+                    </button>
+                    <button class="btn btn-outline" onclick="openPasswordModal()">
+                        <i class="fas fa-key"></i> Change Password
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Profile</h2>
+                <span class="close" onclick="closeModal('editProfileModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="editProfileForm" onsubmit="updateProfile(event)">
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" name="name" value="{{ user.name }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone</label>
+                        <input type="tel" id="phone" name="phone" value="{{ user.phone }}">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline" onclick="closeModal('editProfileModal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div id="passwordModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Change Password</h2>
+                <span class="close" onclick="closeModal('passwordModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="passwordForm" onsubmit="updatePassword(event)">
+                    <div class="form-group">
+                        <label for="currentPassword">Current Password</label>
+                        <input type="password" id="currentPassword" name="currentPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword">New Password</label>
+                        <input type="password" id="newPassword" name="newPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline" onclick="closeModal('passwordModal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Update Password</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openEditModal() {
+            document.getElementById('editProfileModal').style.display = 'flex';
+        }
+
+        function openPasswordModal() {
+            document.getElementById('passwordModal').style.display = 'flex';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+
+        async function updateProfile(event) {
+            event.preventDefault();
+            // Add your profile update logic here
+        }
+
+        async function updatePassword(event) {
+            event.preventDefault();
+            // Add your password update logic here
+        }
+    </script>
+</body>
+</html>

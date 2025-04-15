@@ -1,0 +1,163 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Approvals - Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <div class="container">
+        <div class="approval-header">
+            <h1><i class="fas fa-clipboard-check"></i> Approvals</h1>
+            <p class="approval-subtitle">Manage employee registrations and leave requests</p>
+        </div>
+
+        <!-- Dashboard Stats -->
+        <div class="approval-stats">
+            <div class="stat-card">
+                <i class="fas fa-user-clock"></i>
+                <span class="stat-number">{{ pending_users|length }}</span>
+                <span class="stat-label">Pending Registrations</span>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-calendar-check"></i>
+                <span class="stat-number">{{ pending_leaves|length }}</span>
+                <span class="stat-label">Pending Leave Requests</span>
+            </div>
+        </div>
+
+        <!-- Pending Users Section -->
+        <div class="section-header">
+            <h2 class="section-title"><i class="fas fa-user-clock"></i> Pending Employee Approvals</h2>
+        </div>
+        <div class="approval-grid">
+            {% if pending_users %}
+                {% for username, user in pending_users.items() %}
+                    <div class="approval-card">
+                        <div class="user-header">
+                            <div class="user-avatar">
+                                <i class="fas fa-user-circle"></i>
+                            </div>
+                            <div class="user-title">
+                                <h3>{{ user.name }}</h3>
+                                <span class="employee-id">{{ user.employee_id }}</span>
+                            </div>
+                        </div>
+
+                        <div class="user-details">
+                            <div class="detail-item">
+                                <i class="fas fa-envelope"></i>
+                                <span>{{ user.email }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-phone"></i>
+                                <span>{{ user.mobile }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-building"></i>
+                                <span>{{ user.department }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-user-tie"></i>
+                                <span>{{ user.job_role }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-calendar"></i>
+                                <span>Join Date: {{ user.join_date }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>{{ user.location_name }}</span>
+                            </div>
+                        </div>
+
+                        <div class="approval-actions">
+                            <button class="btn btn-success approve-user" data-username="{{ username }}">
+                                <i class="fas fa-check"></i> Approve
+                            </button>
+                            <button class="btn btn-danger reject-user" data-username="{{ username }}">
+                                <i class="fas fa-times"></i> Reject
+                            </button>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-pending-users">
+                    <i class="fas fa-check-circle"></i>
+                    <p>No pending user applications</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Leave Requests Section -->
+        <div class="section-header">
+            <h2 class="section-title"><i class="fas fa-calendar-alt"></i> Leave Requests</h2>
+        </div>
+        <div class="leave-requests-grid">
+            {% if pending_leaves %}
+                {% for emp_id, leaves in pending_leaves.items() %}
+                    {% for leave_id, leave in leaves.items() %}
+                        <div class="leave-request-card">
+                            <div class="leave-header">
+                                <div class="employee-info">
+                                    <i class="fas fa-user-circle"></i>
+                                    <div>
+                                        <h3>{{ leave.employee_name }}</h3>
+                                        <span class="employee-id">{{ emp_id }}</span>
+                                    </div>
+                                </div>
+                                <span class="leave-type">{{ leave.type }}</span>
+                            </div>
+
+                            <div class="leave-details">
+                                <div class="detail-row">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <span>{{ leave.start_date }} to {{ leave.end_date }}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <i class="fas fa-comment"></i>
+                                    <span>{{ leave.reason }}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <i class="fas fa-clock"></i>
+                                    <span>Applied on: {{ leave.applied_on }}</span>
+                                </div>
+                            </div>
+
+                            <div class="comment-section">
+                                <textarea class="comment-box" placeholder="Add a comment (optional)"></textarea>
+                            </div>
+
+                            <div class="leave-actions">
+                                <button class="btn btn-success approve-btn" 
+                                        data-emp-id="{{ emp_id }}" 
+                                        data-leave-id="{{ leave_id }}">
+                                    <i class="fas fa-check"></i> Approve
+                                </button>
+                                <button class="btn btn-danger reject-btn"
+                                        data-emp-id="{{ emp_id }}" 
+                                        data-leave-id="{{ leave_id }}">
+                                    <i class="fas fa-times"></i> Reject
+                                </button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            {% else %}
+                <div class="no-pending-leaves">
+                    <i class="fas fa-check-circle"></i>
+                    <p>No pending leave requests</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+</body>
+</html>

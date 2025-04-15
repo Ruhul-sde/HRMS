@@ -1,0 +1,133 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Attendance Report - Geo Attendance System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    {% include 'navbar.html' %}
+    
+    <div class="container">
+        <h1>Employee Attendance Reports</h1>
+        
+        <div class="filters">
+            <form method="get" action="{{ url_for('admin_attendance_report') }}" class="filter-form">
+                <div class="download-section">
+    <h3>Download Report</h3>
+    <a href="{{ url_for('download_attendance', employee_id=selected_employee, month=month) }}" class="btn btn-success">
+        <i class="fas fa-download"></i> Download Excel
+    </a>
+</div>
+                <div class="form-group">
+                    <label for="employee_id">Select Employee:</label>
+                    <select name="employee_id" id="employee_id" class="form-control">
+                        {% for emp_id, name in employees.items() %}
+                        <option value="{{ emp_id }}" {% if emp_id == selected_employee %}selected{% endif %}>{{ name }} ({{ emp_id }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="month">Select Month:</label>
+                    <select name="month" id="month" class="form-control">
+                        {% for m in all_months %}
+                        <option value="{{ m }}" {% if m == month %}selected{% endif %}>{{ m }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">View Report</button>
+                </div>
+            </form>
+        </div>
+        
+        {% if selected_employee %}
+        <div class="report-section">
+            <div class="card">
+                <h2>Leave Summary</h2>
+                <div class="leave-summary">
+                    <div class="leave-stat">
+                        <span class="leave-label">Paid Leave (PL):</span>
+                        <span class="leave-count">{{ leaves_data.PL }} days</span>
+                    </div>
+                    <div class="leave-stat">
+                        <span class="leave-label">Casual Leave (CL):</span>
+                        <span class="leave-count">{{ leaves_data.CL }} days</span>
+                    </div>
+                    <div class="leave-stat">
+                        <span class="leave-label">Medical Leave (ML):</span>
+                        <span class="leave-count">{{ leaves_data.ML }} days</span>
+                    </div>
+                    <div class="leave-stat">
+                        <span class="leave-label">Other:</span>
+                        <span class="leave-count">{{ leaves_data.Other }} days</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Leave Applications</h2>
+                {% if leave_details %}
+                <table class="leave-table">
+                    <thead>
+                        <tr>
+                            <th>Period</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Reason</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for leave in leave_details %}
+                        <tr>
+                            <td>{{ leave.start_date }} to {{ leave.end_date }}</td>
+                            <td class="leave-type-badge">{{ leave.type }}</td>
+                            <td class="leave-status-{{ leave.status }}">{{ leave.status }}</td>
+                            <td>{{ leave.reason }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p>No leave applications found for this month.</p>
+                {% endif %}
+            </div>
+            
+            <div class="card">
+                <h2>Daily Attendance</h2>
+                <div class="calendar">
+                    <table class="attendance-calendar">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Check-in</th>
+                                <th>Location</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for date in month_dates %}
+                            <tr>
+                                <td>{{ date }}</td>
+                                {% if date in attendance_data %}
+                                <td><span class="badge badge-success">Present</span></td>
+                                <td>{{ attendance_data[date].check_in }}</td>
+                                <td>{{ attendance_data[date].location }}</td>
+                                {% else %}
+                                <td><span class="badge badge-danger">Absent</span></td>
+                                <td>-</td>
+                                <td>-</td>
+                                {% endif %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

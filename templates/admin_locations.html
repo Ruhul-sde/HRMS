@@ -1,0 +1,139 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Locations - Geo Attendance System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    {% include 'navbar.html' %}
+    
+    <div class="container">
+        <div class="locations-header">
+            <div class="header-content">
+                <h1><i class="fas fa-map-marked-alt"></i> Manage Locations</h1>
+                <p class="subtitle">Add and manage office locations for attendance tracking</p>
+            </div>
+        </div>
+
+        <div class="locations-grid">
+            <div class="location-form-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-plus-circle"></i> Add New Location</h2>
+                    <p>Configure a new office location with its coordinates</p>
+                </div>
+                <form action="/admin/locations" method="POST" class="location-form">
+                    <div class="form-group animated">
+                        <div class="input-icon-wrapper">
+                            <i class="fas fa-building"></i>
+                            <input type="text" id="name" name="name" required placeholder="Enter location name (e.g., Main Office)">
+                        </div>
+                    </div>
+                    
+                    <div class="coordinates-group">
+                        <div class="form-group animated">
+                            <div class="input-icon-wrapper">
+                                <i class="fas fa-latitude"></i>
+                                <input type="number" step="any" id="latitude" name="latitude" required placeholder="Latitude (e.g., 28.7041)">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group animated">
+                            <div class="input-icon-wrapper">
+                                <i class="fas fa-longitude"></i>
+                                <input type="number" step="any" id="longitude" name="longitude" required placeholder="Longitude (e.g., 77.1025)">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group animated">
+                        <div class="input-icon-wrapper">
+                            <i class="fas fa-circle-notch"></i>
+                            <input type="number" id="radius" name="radius" required placeholder="Radius in meters (e.g., 100)">
+                        </div>
+                    </div>
+                    
+                    <div class="map-container">
+                        <div id="map"></div>
+                        <div class="map-help">
+                            <i class="fas fa-info-circle"></i>
+                            <p>Click on the map to set location coordinates automatically</p>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-plus"></i> Add Location
+                    </button>
+                </form>
+            </div>
+
+            <div class="location-list-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-list"></i> Existing Locations</h2>
+                    <p>View and manage your configured locations</p>
+                </div>
+                
+                {% if locations %}
+                    <div class="locations-table-wrapper">
+                        <table class="location-table">
+                            <thead>
+                                <tr>
+                                    <th>Location Name</th>
+                                    <th>Coordinates</th>
+                                    <th>Radius</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for loc_id, location in locations.items() %}
+                                <tr class="location-row">
+                                    <td>
+                                        <div class="location-name">
+                                            <i class="fas fa-map-marker-alt"></i>
+                                            {{ location.name }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="coordinates">
+                                            <span>{{ location.latitude }}°N</span>
+                                            <span>{{ location.longitude }}°E</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="radius-badge">
+                                            {{ location.radius }}m
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn-edit" onclick="editLocation('{{ loc_id }}')">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn-delete" onclick="deleteLocation('{{ loc_id }}')">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="no-locations">
+                        <i class="fas fa-map-marked-alt"></i>
+                        <p>No locations added yet</p>
+                        <span>Add your first location using the form above</span>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/locations.js') }}"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ config.GOOGLE_MAPS_API_KEY }}&callback=initMap" async defer></script>
+</body>
+</html>

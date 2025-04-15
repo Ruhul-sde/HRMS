@@ -1,0 +1,139 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Locations - Geo Attendance System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    {% include 'navbar.html' %}
+    
+    <div class="container">
+        <div class="locations-header">
+            <div class="header-content">
+                <h1><i class="fas fa-map-marker-alt"></i> Employee Locations</h1>
+                <p class="subtitle">Manage attendance locations for your team members</p>
+            </div>
+        </div>
+
+        {% if success %}
+        <div class="success-toast">
+            <i class="fas fa-check-circle"></i>
+            {{ success }}
+        </div>
+        {% endif %}
+
+        <div class="locations-grid">
+            <div class="location-form-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-user-location"></i> Update Employee Location</h2>
+                    <p>Assign or update attendance check-in locations</p>
+                </div>
+                
+                <form action="/admin/employee_locations" method="POST" class="location-form">
+                    <div class="form-group animated">
+                        <div class="input-icon-wrapper">
+                            <i class="fas fa-user"></i>
+                            <select id="username" name="username" required>
+                                <option value="">Select an Employee</option>
+                                {% for username, user in employees.items() %}
+                                <option value="{{ username }}">{{ user.name }} ({{ user.employee_id }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group animated">
+                        <div class="input-icon-wrapper">
+                            <i class="fas fa-map-pin"></i>
+                            <select id="location_id" name="location_id" onchange="toggleCustomLocation()" required>
+                                <option value="">Select Location</option>
+                                {% for loc_id, location in locations.items() %}
+                                <option value="{{ loc_id }}">{{ location.name }}</option>
+                                {% endfor %}
+                                <option value="custom">Custom Location</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div id="custom_location_fields" class="custom-location-section" style="display: none;">
+                        <div class="coordinates-group">
+                            <div class="form-group animated">
+                                <div class="input-icon-wrapper">
+                                    <i class="fas fa-latitude"></i>
+                                    <input type="number" step="any" id="custom_latitude" name="custom_latitude" placeholder="Enter Latitude">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group animated">
+                                <div class="input-icon-wrapper">
+                                    <i class="fas fa-longitude"></i>
+                                    <input type="number" step="any" id="custom_longitude" name="custom_longitude" placeholder="Enter Longitude">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-save"></i> Update Location
+                    </button>
+                </form>
+            </div>
+
+            <div class="location-list-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-list"></i> Current Locations</h2>
+                    <p>View all employee assigned locations</p>
+                </div>
+                
+                <div class="employee-locations-grid">
+                    {% for username, user in employees.items() %}
+                    <div class="employee-location-card">
+                        <div class="employee-avatar">{{ user.name[0] | upper }}</div>
+                        <div class="employee-details">
+                            <h3>{{ user.name }}</h3>
+                            <span class="employee-id">{{ user.employee_id }}</span>
+                            <div class="location-info">
+                                <i class="fas fa-map-marker-alt"></i>
+                                {% if user.location_name %}
+                                    <span>{{ user.location_name }}</span>
+                                    <div class="coordinates">
+                                        <small>{{ user.latitude|default(0, true) }}, {{ user.longitude|default(0, true) }}</small>
+                                    </div>
+                                {% else %}
+                                    <span class="no-location">No location assigned</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function toggleCustomLocation() {
+            const locationSelect = document.getElementById('location_id');
+            const customFields = document.getElementById('custom_location_fields');
+            customFields.style.display = locationSelect.value === 'custom' ? 'block' : 'none';
+        }
+
+        // Success toast animation
+        document.addEventListener('DOMContentLoaded', function() {
+            const toast = document.querySelector('.success-toast');
+            if (toast) {
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    setTimeout(() => {
+                        toast.remove();
+                    }, 300);
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>
