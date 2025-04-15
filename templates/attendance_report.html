@@ -72,7 +72,7 @@
                 <div class="chart-container">
                     <canvas id="attendanceChart"></canvas>
                 </div>
-                <div class="chart-container">
+                <div class="chart-container" style="height: 300px;">
                     <canvas id="weeklyTrendChart"></canvas>
                 </div>
             </div>
@@ -162,12 +162,26 @@
                         scales: {
                             y: {
                                 beginAtZero: true,
-                                max: 100,
+                                max: 1,
                                 ticks: {
-                                    callback: value => value + '%'
+                                    callback: function(value) {
+                                        return value === 1 ? 'Present' : 'Absent';
+                                    }
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    maxRotation: 45,
+                                    minRotation: 45,
+                                    callback: function(value, index) {
+                                        const date = this.getLabelForValue(value);
+                                        return date.split('-')[2]; // Show only day
+                                    }
                                 }
                             }
-                        }
+                        },
+                        maintainAspectRatio: false,
+                        height: 300
                     }
                 });
             </script>
