@@ -155,6 +155,13 @@
         "check_out_longitude": 88.3610774,
         "check_out_location": "Custom Location",
         "working_hours": 0.02
+      },
+      "2025-04-16": {
+        "check_in": "11:35 AM",
+        "location": "Custom Location",
+        "status": "Present",
+        "latitude": 22.497398,
+        "longitude": 88.361072
       }
     }
   },
