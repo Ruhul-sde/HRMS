@@ -103,6 +103,35 @@
                                 <div class="info-value">{{ employment_details.department }}</div>
                             </div>
                             <div class="info-item">
+                                <div class="info-label">Employee ID</div>
+                                <div class="info-value">{{ user.employee_id }}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Work Location</div>
+                                <div class="info-value">{{ employment_details.location }}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Coordinates</div>
+                                <div class="info-value">
+                                    <span>Lat: {{ "%.6f"|format(user.latitude|float) }}</span>
+                                    <span>Long: {{ "%.6f"|format(user.longitude|float) }}</span>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Email</div>
+                                <div class="info-value">{{ user.email|default('Not Set') }}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Mobile</div>
+                                <div class="info-value">{{ user.mobile|default('Not Set') }}</div>
+                            </div>
+                                <div class="info-value">{{ employment_details.manager }}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Department</div>
+                                <div class="info-value">{{ employment_details.department }}</div>
+                            </div>
+                            <div class="info-item">
                                 <div class="info-label">Office Location</div>
                                 <div class="info-value">{{ employment_details.location }}</div>
                             </div>

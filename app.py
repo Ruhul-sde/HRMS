@@ -572,14 +572,22 @@ def profile():
                 elif leave_type == 'ml':
                     leaves['ml_remaining'] -= days
 
-    # Get employment details
+    # Get employment details with extended information
     employment_details = {
         'position': user_data.get('job_role', 'Not Set'),
         'join_date': user_data.get('join_date', 'Not Set'),
         'manager': user_data.get('manager', 'Not Assigned'),
         'department': user_data.get('department', 'Not Set'),
-        'location': user_data.get('location_name', 'Not Set')
+        'location': user_data.get('location_name', 'Not Set'),
+        'email': session['username'],
+        'mobile': user_data.get('mobile', 'Not Set')
     }
+
+    # Add coordinates and location info to user data
+    user_data['latitude'] = user_data.get('latitude', 0.0)
+    user_data['longitude'] = user_data.get('longitude', 0.0)
+    user_data['email'] = session['username']
+    
     return render_template('profile.html', user=user_data, stats=stats, leaves=leaves, employment_details=employment_details)
 
 @app.route('/attendance_report')
