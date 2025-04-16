@@ -72,6 +72,21 @@
       "department": "IT",
       "job_role": "Team Lead",
       "mobile": "1234567890"
+    },
+    "raj@raj.com": {
+      "password": "Raj@1234",
+      "name": "Raj Roy",
+      "mobile": "1234567890",
+      "department": "IT",
+      "job_role": "Manager",
+      "email": "raj@raj.com",
+      "role": "employee",
+      "employee_id": "EMP007",
+      "manager": "admin",
+      "latitude": 22.497473043976605,
+      "longitude": 88.36115288589133,
+      "location_name": "Custom Location",
+      "join_date": "2025-04-16"
     }
   },
   "locations": {
@@ -211,6 +226,26 @@
         "status": "pending",
         "manager": "admin",
         "applied_on": "2025-04-11"
+      },
+      "bd5f90fb-a37b-4c92-a392-b3b8b793d33c": {
+        "start_date": "2025-04-17",
+        "end_date": "2025-04-19",
+        "reason": "i want this leave ",
+        "type": "PL",
+        "status": "pending",
+        "manager": "admin",
+        "applied_on": "2025-04-16"
+      }
+    },
+    "EMP007": {
+      "f234b868-92cb-41f6-b6eb-adf6752d51a7": {
+        "start_date": "2025-04-17",
+        "end_date": "2025-04-19",
+        "reason": "i want this leave",
+        "type": "PL",
+        "status": "pending",
+        "manager": "admin",
+        "applied_on": "2025-04-16"
       }
     }
   },
