@@ -486,6 +486,28 @@ def admin_update_leave():
 
     return jsonify({'success': False, 'message': 'Leave not found'})
 
+@app.route('/api/update_profile', methods=['POST'])
+def update_profile():
+    if 'username' not in session:
+        return jsonify({'success': False, 'message': 'Not logged in'})
+
+    try:
+        data = request.json
+        db = get_db()
+        
+        # Update user data
+        db['users'][session['username']].update({
+            'name': data.get('name'),
+            'mobile': data.get('mobile'),
+            'department': data.get('department'),
+            'job_role': data.get('job_role')
+        })
+        
+        save_db(db)
+        return jsonify({'success': True, 'message': 'Profile updated successfully'})
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)})
+
 @app.route('/profile')
 def profile():
     if 'username' not in session or session['role'] == 'admin':

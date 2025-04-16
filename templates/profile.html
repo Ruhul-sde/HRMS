@@ -168,12 +168,22 @@
                         <input type="text" id="name" name="name" value="{{ user.name }}" required>
                     </div>
                     <div class="form-group">
-                        <label for="phone">Phone</label>
-                        <input type="tel" id="phone" name="phone" value="{{ user.phone }}">
+                        <label for="mobile">Mobile Number</label>
+                        <input type="tel" id="mobile" name="mobile" value="{{ user.mobile }}" pattern="[0-9]{10}" title="Please enter a valid 10-digit mobile number">
+                    </div>
+                    <div class="form-group">
+                        <label for="department">Department</label>
+                        <input type="text" id="department" name="department" value="{{ user.department }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="job_role">Job Role</label>
+                        <input type="text" id="job_role" name="job_role" value="{{ user.job_role }}">
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline" onclick="closeModal('editProfileModal')">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Changes
+                        </button>
                     </div>
                 </form>
             </div>
@@ -232,7 +242,33 @@
 
         async function updateProfile(event) {
             event.preventDefault();
-            // Add your profile update logic here
+            const formData = {
+                name: document.getElementById('name').value,
+                mobile: document.getElementById('mobile').value,
+                department: document.getElementById('department').value,
+                job_role: document.getElementById('job_role').value
+            };
+
+            try {
+                const response = await fetch('/api/update_profile', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    closeModal('editProfileModal');
+                    window.location.reload();
+                } else {
+                    alert(data.message || 'Failed to update profile');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while updating profile');
+            }
         }
 
         async function updatePassword(event) {
