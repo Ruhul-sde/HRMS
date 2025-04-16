@@ -88,19 +88,23 @@
                         <div class="info-group">
                             <div class="info-item">
                                 <div class="info-label">Position</div>
-                                <div class="info-value">{{ user.position|default('Not Set') }}</div>
+                                <div class="info-value">{{ employment_details.position }}</div>
                             </div>
                             <div class="info-item">
                                 <div class="info-label">Join Date</div>
-                                <div class="info-value">{{ user.join_date|default('Not Set') }}</div>
+                                <div class="info-value">{{ employment_details.join_date }}</div>
                             </div>
                             <div class="info-item">
                                 <div class="info-label">Manager</div>
-                                <div class="info-value">{{ user.manager|default('Not Assigned') }}</div>
+                                <div class="info-value">{{ employment_details.manager }}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Department</div>
+                                <div class="info-value">{{ employment_details.department }}</div>
                             </div>
                             <div class="info-item">
                                 <div class="info-label">Office Location</div>
-                                <div class="info-value">{{ user.location|default('Not Set') }}</div>
+                                <div class="info-value">{{ employment_details.location }}</div>
                             </div>
                         </div>
                     </div>

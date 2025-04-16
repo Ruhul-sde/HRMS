@@ -543,6 +543,15 @@ def profile():
     stats['absent_days'] = working_days - stats['present_days'] - stats['leave_days']
     stats['attendance_percentage'] = round((stats['present_days'] / working_days) * 100 if working_days > 0 else 0, 1)
 
+    # Get employment details
+    employment_details = {
+        'position': user_data.get('job_role', 'Not Set'),
+        'join_date': user_data.get('join_date', 'Not Set'),
+        'manager': user_data.get('manager', 'Not Assigned'),
+        'department': user_data.get('department', 'Not Set'),
+        'location': user_data.get('location_name', 'Not Set')
+    }
+
     # Calculate leave balances
     leaves = {
         'pl_remaining': 12,
