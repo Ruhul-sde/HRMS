@@ -409,7 +409,8 @@ def apply_leave():
     leave_balances = {
         'PL': {'total': 12, 'used': 0, 'remaining': 12},
         'CL': {'total': 6, 'used': 0, 'remaining': 6},
-        'ML': {'total': 7, 'used': 0, 'remaining': 7}
+        'ML': {'total': 7, 'used': 0, 'remaining': 7},
+        'Other': {'total': 5, 'used': 0, 'remaining': 5}
     }
 
     if 'leaves' in db and session['employee_id'] in db['leaves']:
