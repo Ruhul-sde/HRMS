@@ -141,7 +141,7 @@
                         `${startDate.toLocaleDateString()} to ${endDate.toLocaleDateString()} (${days} days)`;
                     document.getElementById('preview_type').textContent = leaveType.options[leaveType.selectedIndex].text;
                     document.getElementById('preview_balance').textContent = 
-                        `${{{ leave_balances|tojson }}[leaveType.value].remaining} days`;
+                        document.getElementById('remaining_days').textContent = `${leave_balances[leaveType.value].remaining} days`;
                 }
 
                 function validateForm() {
