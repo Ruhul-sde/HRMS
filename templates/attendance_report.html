@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -68,51 +69,25 @@
 
         <div class="attendance-card">
             <div class="analytics-section">
-                <div class="overview-header">
-                    <h2><i class="fas fa-chart-line"></i> Monthly Analytics</h2>
-                    <div class="overview-stats">
-                        <div class="stat-pill">
-                            <i class="fas fa-calendar-check"></i>
-                            <span>Present: {{ stats.present_days }} days</span>
-                        </div>
-                        <div class="stat-pill">
-                            <i class="fas fa-calendar-times"></i>
-                            <span>Absent: {{ stats.absent_days }} days</span>
-                        </div>
-                        <div class="stat-pill">
-                            <i class="fas fa-percentage"></i>
-                            <span>Rate: {{ stats.attendance_percentage }}%</span>
-                        </div>
-                    </div>
+                <div class="chart-container">
+                    <canvas id="attendanceChart"></canvas>
                 </div>
-                <div class="charts-grid">
-                    <div class="chart-container glass-effect">
-                        <div class="chart-header">
-                            <h3>Attendance Distribution</h3>
-                            <div class="chart-legend">
-                                <span><i class="fas fa-circle present"></i> Present</span>
-                                <span><i class="fas fa-circle absent"></i> Absent</span>
-                            </div>
-                        </div>
-                        <canvas id="attendanceChart"></canvas>
-                    </div>
-                    <div class="chart-container glass-effect">
-                        <div class="chart-header">
-                            <h3>Monthly Trend</h3>
-                            <div class="chart-legend">
-                                <span><i class="fas fa-square present"></i> Present</span>
-                                <span><i class="fas fa-square absent"></i> Absent</span>
-                            </div>
-                        </div>
-                        <canvas id="weeklyTrendChart"></canvas>
-                    </div>
+                <div class="chart-container" style="height: 300px;">
+                    <canvas id="weeklyTrendChart"></canvas>
+                </div>
+            </div>
+            <div class="card-header modern">
+                <h2><i class="fas fa-calendar"></i> Monthly Overview</h2>
+                <div class="legend">
+                    <span class="legend-item"><i class="fas fa-circle present"></i> Present</span>
+                    <span class="legend-item"><i class="fas fa-circle absent"></i> Absent</span>
                 </div>
             </div>
             <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
             <script>
                 const presentDays = {{ stats.present_days }};
                 const absentDays = {{ stats.absent_days }};
-
+                
                 // Attendance Distribution Chart
                 new Chart(document.getElementById('attendanceChart'), {
                     type: 'doughnut',

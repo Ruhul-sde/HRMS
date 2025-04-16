@@ -149,119 +149,19 @@
 }
 
 .analytics-section {
-    background: white;
-    border-radius: 20px;
-    padding: 2rem;
-    margin-bottom: 3rem;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-}
-
-.overview-header {
-    margin-bottom: 2rem;
-}
-
-.overview-header h2 {
-    font-size: 1.5rem;
-    color: var(--primary-color);
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.overview-stats {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-}
-
-.stat-pill {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    color: white;
-    padding: 0.8rem 1.2rem;
-    border-radius: 50px;
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-    font-size: 0.9rem;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.charts-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 2rem;
+    margin-bottom: 3rem;
 }
 
 .chart-container {
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 15px;
     padding: 1.5rem;
-    height: 350px;
-    transition: all 0.3s ease;
-    position: relative;
-}
-
-.glass-effect {
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-}
-
-.chart-container:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
-}
-
-.chart-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-}
-
-.chart-header h3 {
-    font-size: 1.1rem;
-    color: var(--dark-color);
-    margin: 0;
-}
-
-.chart-legend {
-    display: flex;
-    gap: 1rem;
-    font-size: 0.9rem;
-}
-
-.chart-legend span {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-}
-
-.chart-legend i.present {
-    color: #4CAF50;
-}
-
-.chart-legend i.absent {
-    color: #f44336;
-}
-
-@media (max-width: 768px) {
-    .analytics-section {
-        padding: 1.5rem;
-    }
-    
-    .overview-stats {
-        flex-direction: column;
-    }
-    
-    .stat-pill {
-        width: 100%;
-    }
-    
-    .charts-grid {
-        grid-template-columns: 1fr;
-    }
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease;
+    height: 300px;
 }
 
 .chart-container:hover {
