@@ -185,33 +185,52 @@
                     }
                 });
             </script>
-            <div class="table-responsive">
-                <table class="modern-table">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Status</th>
-                            <th>Check-in Time</th>
-                            <th>Location</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for date in month_dates %}
-                        <tr class="{{ 'present-row' if date in attendance_data else 'absent-row' }}">
-                            <td>{{ date }}</td>
+            <div class="attendance-list-container">
+                <div class="attendance-list-header">
+                    <div class="header-cell">Date</div>
+                    <div class="header-cell">Status</div>
+                    <div class="header-cell">Check-in Time</div>
+                    <div class="header-cell">Location</div>
+                </div>
+                <div class="attendance-list-body">
+                    {% for date in month_dates %}
+                    <div class="attendance-list-item {{ 'present-row' if date in attendance_data else 'absent-row' }}">
+                        <div class="list-cell date-cell">
+                            <span class="date-day">{{ date.split('-')[2] }}</span>
+                            <span class="date-month">{{ date.split('-')[1] }}</span>
+                        </div>
+                        <div class="list-cell status-cell">
                             {% if date in attendance_data %}
-                            <td><span class="status-badge status-present">Present</span></td>
-                            <td>{{ attendance_data[date].check_in }}</td>
-                            <td>{{ attendance_data[date].location }}</td>
+                            <span class="status-badge status-present">
+                                <i class="fas fa-check-circle"></i>
+                                Present
+                            </span>
                             {% else %}
-                            <td><span class="status-badge status-absent">Absent</span></td>
-                            <td>-</td>
-                            <td>-</td>
+                            <span class="status-badge status-absent">
+                                <i class="fas fa-times-circle"></i>
+                                Absent
+                            </span>
                             {% endif %}
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                        </div>
+                        <div class="list-cell time-cell">
+                            {% if date in attendance_data %}
+                            <i class="fas fa-clock"></i>
+                            {{ attendance_data[date].check_in }}
+                            {% else %}
+                            -
+                            {% endif %}
+                        </div>
+                        <div class="list-cell location-cell">
+                            {% if date in attendance_data %}
+                            <i class="fas fa-map-marker-alt"></i>
+                            {{ attendance_data[date].location }}
+                            {% else %}
+                            -
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
         </div>
     </div>

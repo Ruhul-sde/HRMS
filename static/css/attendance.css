@@ -198,33 +198,123 @@
     color: #666;
 }
 
-.modern-table {
-    width: 100%;
-    border-spacing: 0;
+.attendance-list-container {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     margin-top: 1.5rem;
+    overflow: hidden;
 }
 
-.modern-table th {
-    background: rgba(0, 0, 0, 0.02);
-    padding: 1rem;
+.attendance-list-header {
+    display: grid;
+    grid-template-columns: 0.8fr 1fr 1fr 1.2fr;
+    padding: 1.2rem;
+    background: #f8f9fa;
+    border-bottom: 2px solid #edf2f7;
+    gap: 1rem;
+}
+
+.header-cell {
     font-weight: 600;
-    text-align: left;
-    border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+    color: #4a5568;
+    font-size: 0.95rem;
 }
 
-.modern-table td {
-    padding: 1rem;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+.attendance-list-body {
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.attendance-list-item {
+    display: grid;
+    grid-template-columns: 0.8fr 1fr 1fr 1.2fr;
+    padding: 1rem 1.2rem;
+    gap: 1rem;
+    border-bottom: 1px solid #edf2f7;
+    transition: all 0.3s ease;
+}
+
+.attendance-list-item:hover {
+    background: #f8fafc;
+    transform: translateX(5px);
+}
+
+.list-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #2d3748;
+}
+
+.date-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.date-day {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.date-month {
+    font-size: 0.85rem;
+    color: #718096;
+}
+
+.time-cell, .location-cell {
+    color: #718096;
+    font-size: 0.95rem;
+}
+
+.time-cell i, .location-cell i {
+    color: var(--primary-color);
+    font-size: 1rem;
 }
 
 .status-badge {
     padding: 0.5rem 1rem;
     border-radius: 20px;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     font-weight: 500;
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
+}
+
+.status-badge.status-present {
+    background: rgba(72, 187, 120, 0.1);
+    color: #2f855a;
+}
+
+.status-badge.status-absent {
+    background: rgba(245, 101, 101, 0.1);
+    color: #c53030;
+}
+
+.present-row {
+    border-left: 4px solid #48bb78;
+}
+
+.absent-row {
+    border-left: 4px solid #f56565;
+}
+
+@media (max-width: 768px) {
+    .attendance-list-header, .attendance-list-item {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.8rem;
+    }
+    
+    .attendance-list-item {
+        padding: 1rem;
+    }
+    
+    .location-cell {
+        grid-column: span 2;
+    }
 }
 
 .card-header {
