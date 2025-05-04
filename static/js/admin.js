@@ -1,71 +1,119 @@
 // Admin Dashboard JavaScript
 
-// Handle user approval/rejection
+// Admin functionality for approving/rejecting user registrations
 document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.approve-user').forEach(button => {
+    // User approval handlers
+    const approveButtons = document.querySelectorAll('.approve-user');
+    const rejectButtons = document.querySelectorAll('.reject-user');
+
+    approveButtons.forEach(button => {
         button.addEventListener('click', function() {
             const username = this.dataset.username;
-            approveUser(username, this);
+            approveUser(username);
         });
     });
 
-    document.querySelectorAll('.reject-user').forEach(button => {
+    rejectButtons.forEach(button => {
         button.addEventListener('click', function() {
             const username = this.dataset.username;
-            rejectUser(username, this);
+            rejectUser(username);
+        });
+    });
+
+    // Leave request handlers
+    const leaveApproveButtons = document.querySelectorAll('.approve-btn');
+    const leaveRejectButtons = document.querySelectorAll('.reject-btn');
+
+    leaveApproveButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const empId = this.dataset.empId;
+            const leaveId = this.dataset.leaveId;
+            const commentBox = this.closest('.leave-request-card').querySelector('.comment-box');
+            const comment = commentBox ? commentBox.value : '';
+            updateLeaveStatus(empId, leaveId, 'approved', comment);
+        });
+    });
+
+    leaveRejectButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const empId = this.dataset.empId;
+            const leaveId = this.dataset.leaveId;
+            const commentBox = this.closest('.leave-request-card').querySelector('.comment-box');
+            const comment = commentBox ? commentBox.value : '';
+            updateLeaveStatus(empId, leaveId, 'rejected', comment);
         });
     });
 });
 
-function approveUser(username, button) {
+function approveUser(username) {
     fetch(`/admin/approve_user/${username}`, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json'
         }
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            const card = button.closest('.approval-card');
-            card.style.backgroundColor = '#d4edda';
-            setTimeout(() => {
-                card.remove();
-                checkEmptyState();
-            }, 500);
+            alert('User approved successfully');
+            location.reload();
         } else {
             alert('Error: ' + data.message);
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('An error occurred while processing the request.');
+        alert('An error occurred while approving the user');
     });
 }
 
-function rejectUser(username, button) {
+function rejectUser(username) {
     fetch(`/admin/reject_user/${username}`, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json'
         }
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            const card = button.closest('.approval-card');
-            card.style.backgroundColor = '#f8d7da';
-            setTimeout(() => {
-                card.remove();
-                checkEmptyState();
-            }, 500);
+            alert('User rejected successfully');
+            location.reload();
         } else {
             alert('Error: ' + data.message);
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('An error occurred while processing the request.');
+        alert('An error occurred while rejecting the user');
+    });
+}
+
+function updateLeaveStatus(employeeId, leaveId, status, comment) {
+    fetch('/admin/update_leave', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            employee_id: employeeId,
+            leave_id: leaveId,
+            status: status,
+            comment: comment
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Leave request ' + status + ' successfully');
+            location.reload();
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while updating the leave status');
     });
 }
 
@@ -227,5 +275,3 @@ document.addEventListener('DOMContentLoaded', function() {
         updatePendingApprovals();
     }, 60000);
 });
-
-//Remove Redundant Code Blocks (lines 220-424)

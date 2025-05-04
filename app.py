@@ -6,6 +6,7 @@ import config
 from models.database import initialize_db, get_db, save_db
 from utils.distance import calculate_distance
 from openpyxl import Workbook
+from openpyxl.styles import Font, PatternFill
 from io import BytesIO
 
 app = Flask(__name__)
@@ -181,6 +182,17 @@ def dashboard():
 
     stats['absent_days'] = working_days - stats['present_days'] - stats['leave_days']
     stats['attendance_percentage'] = round((stats['present_days'] / working_days) * 100 if working_days > 0 else 0, 1)
+
+    # Calculate weekly hours
+    today = datetime.now()
+    start_of_week = today - timedelta(days=today.weekday())
+    weekly_hours = 0
+    if 'attendance' in db and session['employee_id'] in db['attendance']:
+        for date, record in db['attendance'][session['employee_id']].items():
+            attendance_date = datetime.strptime(date, '%Y-%m-%d')
+            if start_of_week <= attendance_date <= today and 'working_hours' in record:
+                weekly_hours += record['working_hours']
+    stats['weekly_hours'] = round(weekly_hours, 2)
 
     return render_template('dashboard.html', 
                           user=user_data, 
@@ -494,7 +506,7 @@ def update_profile():
     try:
         data = request.json
         db = get_db()
-        
+
         # Update user data
         db['users'][session['username']].update({
             'name': data.get('name'),
@@ -502,7 +514,7 @@ def update_profile():
             'department': data.get('department'),
             'job_role': data.get('job_role')
         })
-        
+
         save_db(db)
         return jsonify({'success': True, 'message': 'Profile updated successfully'})
     except Exception as e:
@@ -587,7 +599,7 @@ def profile():
     user_data['latitude'] = user_data.get('latitude', 0.0)
     user_data['longitude'] = user_data.get('longitude', 0.0)
     user_data['email'] = session['username']
-    
+
     return render_template('profile.html', user=user_data, stats=stats, leaves=leaves, employment_details=employment_details)
 
 @app.route('/attendance_report')
@@ -706,19 +718,41 @@ def admin_attendance_report():
         return redirect(url_for('home'))
 
     emp_id = request.args.get('employee_id')
+    department = request.args.get('department', 'all')
+    job_role = request.args.get('job_role', 'all')
     month = request.args.get('month', datetime.now().strftime('%Y-%m'))
 
     db = get_db()
+
+    # Get unique departments and job roles
+    departments = set()
+    job_roles = set()
     employees = {}
+
     for username, user in db['users'].items():
         if user['role'] != 'admin':
-            employees[user['employee_id']] = user['name']
+            if department == 'all' or user.get('department') == department:
+                if job_role == 'all' or user.get('job_role') == job_role:
+                    employees[user['employee_id']] = user['name']
+                    if user.get('department'):
+                        departments.add(user.get('department'))
+                    if user.get('job_role'):
+                        job_roles.add(user.get('job_role'))
 
     if not emp_id and employees:
         emp_id = list(employees.keys())[0]
 
     attendance_data = {}
     leaves_data = {}
+    leave_counts = {'PL': 0, 'CL': 0, 'ML': 0, 'Other': 0}
+    leave_details = []
+
+    # Calculate stats
+    stats = {
+        'present_days': 0,
+        'leave_days': 0,
+        'weekly_hours': 0
+    }
 
     if emp_id:
         year, month_num = map(int, month.split('-'))
@@ -727,60 +761,58 @@ def admin_attendance_report():
         days_in_month = calendar.monthrange(year, month_num)[1]
         month_dates = [f"{month}-{str(day).zfill(2)}" for day in range(1, days_in_month + 1)]
 
-        # Get attendance for the month
+        # Calculate present days
         if 'attendance' in db and emp_id in db['attendance']:
-            employee_attendance = db['attendance'][emp_id]
-            for date in month_dates:
-                if date in employee_attendance:
-                    attendance_data[date] = employee_attendance[date]
+            stats['present_days'] = sum(1 for date, record in db['attendance'][emp_id].items() 
+                                    if date.startswith(month) and record['status'] == 'Present')
 
-        # Get leaves for the month
-        leave_counts = {'PL': 0, 'CL': 0, 'ML': 0, 'Other': 0}
-        leave_details = []
-
+        # Calculate leave days
         if 'leaves' in db and emp_id in db['leaves']:
-            for leave_id, leave in db['leaves'][emp_id].items():
-                start = datetime.strptime(leave['start_date'], '%Y-%m-%d')
-                end = datetime.strptime(leave['end_date'], '%Y-%m-%d')
+            for leave in db['leaves'][emp_id].values():
+                if leave['status'] == 'approved':
+                    start = datetime.strptime(leave['start_date'], '%Y-%m-%d')
+                    end = datetime.strptime(leave['end_date'], '%Y-%m-%d')
+                    if start.strftime('%Y-%m') == month:
+                        stats['leave_days'] += (end - start).days + 1
 
-                # Check if leave falls in selected month
-                if start.year == year and start.month == month_num:
-                    leave_type = leave['type']
-                    days = (end - start).days + 1
+        # Calculate weekly hours
+        today = datetime.now()
+        start_of_week = today - timedelta(days=today.weekday())
+        if 'attendance' in db and emp_id in db['attendance']:
+            for date, record in db['attendance'][emp_id].items():
+                attendance_date = datetime.strptime(date, '%Y-%m-%d')
+                if start_of_week <= attendance_date <= today and 'working_hours' in record:
+                    stats['weekly_hours'] += record['working_hours']
+        stats['weekly_hours'] = round(stats['weekly_hours'], 2)
 
-                    if leave_type in leave_counts:
-                        leave_counts[leave_type] += days
-                    else:
-                        leave_counts['Other'] += days
+    # Get all months with attendance or leave data
+    all_months = set()
+    if 'attendance' in db:
+        for employee_id in db['attendance']:
+            for date in db['attendance'][employee_id]:
+                all_months.add(date[:7])  # YYYY-MM format
 
-                    leave_details.append(leave)
+    if 'leaves' in db:
+        for employee_id in db['leaves']:
+            for leave_id, leave in db['leaves'][employee_id].items():
+                all_months.add(leave['start_date'][:7])
 
-        # Get all months with attendance or leave data
-        all_months = set()
-        if 'attendance' in db:
-            for employee_id in db['attendance']:
-                for date in db['attendance'][employee_id]:
-                    all_months.add(date[:7])  # YYYY-MM format
-
-        if 'leaves' in db:
-            for employee_id in db['leaves']:
-                for leave_id, leave in db['leaves'][employee_id].items():
-                    all_months.add(leave['start_date'][:7])
-
-        all_months = sorted(list(all_months), reverse=True)
-    else:
-        month_dates = []
-        all_months = []
+    all_months = sorted(list(all_months), reverse=True)
 
     return render_template('admin_attendance_report.html', 
                           employees=employees,
+                          departments=sorted(list(departments)),
+                          job_roles=sorted(list(job_roles)),
                           selected_employee=emp_id,
+                          selected_department=department,
+                          selected_job_role=job_role,
                           attendance_data=attendance_data,
                           leaves_data=leave_counts,
                           leave_details=leave_details,
                           month=month,
                           all_months=all_months,
-                          month_dates=month_dates)
+                          month_dates=month_dates,
+                          stats=stats)
 
 @app.route('/admin/locations', methods=['GET', 'POST'])
 def admin_locations():
@@ -936,6 +968,7 @@ def download_attendance():
 
     emp_id = request.args.get('employee_id', 'all')
     department = request.args.get('department', 'all')
+    job_role = request.args.get('job_role', 'all')
     month = request.args.get('month', datetime.now().strftime('%Y-%m'))
 
     db = get_db()
@@ -945,7 +978,9 @@ def download_attendance():
     for username, user in db['users'].items():
         if user['role'] == 'employee':
             if (emp_id == 'all' or user['employee_id'] == emp_id) and \
-               (department == 'all' or user.get('department') == department):
+               (department == 'all' or user.get('department') == department) and \
+               (job_role == 'all' or user.get('job_role') == job_role):
+                user['email'] = username  # Add email to user data
                 employees[user['employee_id']] = user
 
     # Create workbook
@@ -953,24 +988,74 @@ def download_attendance():
     ws = wb.active
     ws.title = f"Attendance Report {month}"
 
-    # Headers
-    headers = ['Employee ID', 'Name', 'Department', 'Date', 'Check In', 'Check Out', 'Location', 'Working Hours']
-    for col, header in enumerate(headers, 1):
+    # Set column widths and headers
+    headers = [
+        'Employee ID', 'Name', 'Email', 'Department', 'Job Role', 'Mobile', 'Join Date', 'Date', 
+        'Check In', 'Check Out', 'Total Hours', 'Weekly Total Hours', 'Location', 'Leave Taken', 'Leave Balance'
+    ]
+    column_widths = [15, 25, 30, 20, 20, 15, 15, 15, 15, 15, 15, 15, 25, 15, 15]
+
+    # Set headers and column widths
+    for col, (header, width) in enumerate(zip(headers, column_widths), 1):
         ws.cell(row=1, column=col, value=header)
+        ws.column_dimensions[chr(64 + col)].width = width
+
+    # Style headers
+    for cell in ws[1]:
+        cell.font = Font(bold=True)
+        cell.fill = PatternFill(start_color="CCCCCC", end_color="CCCCCC", fill_type="solid")
 
     row = 2
     for emp_id, emp_data in employees.items():
+        # Calculate weekly hours and leave data
+        weekly_hours = {}
+        leave_balance = {
+            'PL': 12,
+            'CL': 6,
+            'ML': 7,
+            'Other': 5
+        }
+        leaves_taken = 0
+
+        # Calculate used leaves
+        if 'leaves' in db and emp_id in db['leaves']:
+            for leave in db['leaves'][emp_id].values():
+                if leave['status'] == 'approved':
+                    start = datetime.strptime(leave['start_date'], '%Y-%m-%d')
+                    end = datetime.strptime(leave['end_date'], '%Y-%m-%d')
+                    days = (end - start).days + 1
+                    leave_type = leave['type']
+                    if leave_type in leave_balance:
+                        leave_balance[leave_type] -= days
+                    leaves_taken += days
+
         if 'attendance' in db and emp_id in db['attendance']:
             for date, att_data in db['attendance'][emp_id].items():
                 if date.startswith(month):
+                    # Calculate week number for the date
+                    date_obj = datetime.strptime(date, '%Y-%m-%d')
+                    week_num = date_obj.strftime('%Y-W%W')
+
+                    # Add hours to weekly total
+                    if 'working_hours' in att_data:
+                        weekly_hours[week_num] = weekly_hours.get(week_num, 0) + att_data['working_hours']
+
+                    # Write row data with full employee details
                     ws.cell(row=row, column=1, value=emp_id)
                     ws.cell(row=row, column=2, value=emp_data['name'])
-                    ws.cell(row=row, column=3, value=emp_data.get('department', 'N/A'))
-                    ws.cell(row=row, column=4, value=date)
-                    ws.cell(row=row, column=5, value=att_data.get('check_in', 'N/A'))
-                    ws.cell(row=row, column=6, value=att_data.get('check_out', 'N/A'))
-                    ws.cell(row=row, column=7, value=att_data.get('location', 'N/A'))
-                    ws.cell(row=row, column=8, value=att_data.get('working_hours', 'N/A'))
+                    ws.cell(row=row, column=3, value=emp_data['email'])
+                    ws.cell(row=row, column=4, value=emp_data.get('department', 'N/A'))
+                    ws.cell(row=row, column=5, value=emp_data.get('job_role', 'N/A'))
+                    ws.cell(row=row, column=6, value=emp_data.get('mobile', 'N/A'))
+                    ws.cell(row=row, column=7, value=emp_data.get('join_date', 'N/A'))
+                    ws.cell(row=row, column=8, value=date)
+                    ws.cell(row=row, column=9, value=att_data.get('check_in', 'N/A'))
+                    ws.cell(row=row, column=10, value=att_data.get('check_out', 'N/A'))
+                    ws.cell(row=row, column=11, value=att_data.get('working_hours', 'N/A'))
+                    ws.cell(row=row, column=12, value=weekly_hours.get(week_num, 0))
+                    ws.cell(row=row, column=13, value=att_data.get('location', 'N/A'))
+                    ws.cell(row=row, column=14, value=leaves_taken)
+                    ws.cell(row=row, column=15, value=sum(leave_balance.values()))
                     row += 1
 
     # Save to BytesIO
@@ -1044,6 +1129,364 @@ def employee_directory():
 def get_employee(employee_id):
     if 'username' not in session or session['role'] != 'admin':
         return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    db = get_db()
+    for username, user in db['users'].items():
+        if user.get('employee_id') == employee_id:
+            user_data = user.copy()
+            user_data['email'] = username
+            return jsonify(user_data)
+
+    return jsonify({'success': False, 'message': 'Employee not found'}), 404
+
+@app.route('/api/update_employee', methods=['POST'])
+def update_employee():
+    if 'username' not in session or session['role'] != 'admin':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    data = request.json
+    employee_id = data.get('employee_id')
+
+    db = get_db()
+    for username, user in db['users'].items():
+        if user.get('employee_id') == employee_id:
+            # Update user data
+            db['users'][username].update({
+                'name': data.get('name'),
+                'department': data.get('department'),
+                'job_role': data.get('job_role'),
+                'mobile': data.get('mobile')
+            })
+
+            # If email changed, need to update the key in the users dictionary
+            new_email = data.get('email')
+            if new_email != username:
+                user_data = db['users'].pop(username)
+                db['users'][new_email] = user_data
+
+            save_db(db)
+            return jsonify({'success': True, 'message': 'Profile updated successfully'})
+
+    return jsonify({'success': False, 'message': 'Employee not found'}), 404
+
+@app.route('/profile/<employee_id>')
+def view_employee_profile(employee_id):
+    if 'username' not in session:
+        return redirect(url_for('home'))
+
+    db = get_db()
+    for username, user in db['users'].items():
+        if user.get('employee_id') == employee_id:
+            return render_template('profile.html', user=user)
+
+    return redirect(url_for('employee_directory'))
+
+@app.route('/admin/employee_locations', methods=['GET', 'POST'])
+def admin_employee_locations():
+    if 'username' not in session or session['role'] != 'admin':
+        return redirect(url_for('home'))
+
+    db = get_db()
+
+    # Get all employees
+    employees = {}
+    for username, user in db['users'].items():
+        if user['role'] == 'employee':
+            employees[username] = user
+
+    if request.method == 'POST':
+        username = request.form.get('username')
+        location_id = request.form.get('location_id')
+        custom_lat = request.form.get('custom_latitude')
+        custom_lng = request.form.get('custom_longitude')
+
+        if username in db['users']:
+            if location_id == 'custom' and custom_lat and custom_lng:
+                # Set custom location
+                db['users'][username]['latitude'] = float(custom_lat)
+                db['users'][username]['longitude'] = float(custom_lng)
+                db['users'][username]['location_name'] = 'Custom Location'
+            elif location_id in db['locations']:
+                # Set to predefined location
+                db['users'][username]['latitude'] = db['locations'][location_id]['latitude']
+                db['users'][username]['longitude'] = db['locations'][location_id]['longitude']
+                db['users'][username]['location_name'] = db['locations'][location_id]['name']
+
+            save_db(db)
+            return redirect(url_for('admin_employee_locations', success='Employee location updated'))
+
+    # Get success message if any
+    success = request.args.get('success')
+
+    return render_template('admin_employee_locations.html', 
+                          employees=employees, 
+                          locations=db['locations'],
+                          success=success)
+
+@app.route('/admin/settings')
+def admin_settings():
+    if 'username' not in session or session['role'] != 'admin':
+        return redirect(url_for('home'))
+
+    db = get_db()
+    departments = []
+    job_roles = []
+
+    # Get unique departments and roles
+    for username, user in db['users'].items():
+        if user.get('department') and user['department'] not in [d['name'] for d in departments]:
+            departments.append({'id': str(uuid.uuid4()), 'name': user['department']})
+        if user.get('job_role') and user['job_role'] not in [r['name'] for r in job_roles]:
+            job_roles.append({'id': str(uuid.uuid4()), 'name': user['job_role']})
+
+    return render_template('admin_settings.html', departments=departments, job_roles=job_roles)
+
+@app.route('/admin/settings/department', methods=['POST', 'PUT'])
+def manage_department():
+    if 'username' not in session or session['role'] != 'admin':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    data = request.json
+    db = get_db()
+
+    # Update all matching departments
+    for username, user in db['users'].items():
+        if user.get('department') == data.get('old_name'):
+            db['users'][username]['department'] = data['name']
+
+    save_db(db)
+    return jsonify({'success': True})
+
+@app.route('/admin/settings/department/<id>', methods=['GET', 'DELETE'])
+def department_operations(id):
+    if 'username' not in session or session['role'] != 'admin':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    db = get_db()
+
+    if request.method == 'DELETE':
+        # Remove department from all users
+        for username, user in db['users'].items():
+            if user.get('department') == id:
+                db['users'][username]['department'] = None
+
+        save_db(db)
+        return jsonify({'success': True})
+
+    # GET method
+    for username, user in db['users'].items():
+        if user.get('department') == id:
+            return jsonify({'name': user['department']})
+
+    return jsonify({'success': False, 'message': 'Department not found'}), 404
+
+@app.route('/admin/settings/role', methods=['POST', 'PUT'])
+def manage_role():
+    if 'username' not in session or session['role'] != 'admin':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    data = request.json
+    db = get_db()
+
+    # Update all matching roles
+    for username, user in db['users'].items():
+        if user.get('job_role') == data.get('old_name'):
+            db['users'][username]['job_role'] = data['name']
+
+    save_db(db)
+    return jsonify({'success': True})
+
+@app.route('/admin/settings/role/<id>', methods=['GET', 'DELETE'])
+def role_operations(id):
+    if 'username' not in session or session['role'] != 'admin':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    db = get_db()
+
+    if request.method == 'DELETE':
+        # Remove role from all users
+        for username, user in db['users'].items():
+            if user.get('job_role') == id:
+                db['users'][username]['job_role'] = None
+
+        save_db(db)
+        return jsonify({'success': True})
+
+    # GET method
+    for username, user in db['users'].items():
+        if user.get('job_role') == id:
+            return jsonify({'name': user['job_role']})
+
+    return jsonify({'success': False, 'message': 'Role not found'}), 404
+
+@app.route('/admin/download_attendance')
+def download_attendance():
+    if 'username' not in session or session['role'] != 'admin':
+        return redirect(url_for('home'))
+
+    emp_id = request.args.get('employee_id', 'all')
+    department = request.args.get('department', 'all')
+    job_role = request.args.get('job_role', 'all')
+    month = request.args.get('month', datetime.now().strftime('%Y-%m'))
+
+    db = get_db()
+    employees = {}
+
+    # Filter employees based on criteria
+    for username, user in db['users'].items():
+        if user['role'] == 'employee':
+            if (emp_id == 'all' or user['employee_id'] == emp_id) and \
+               (department == 'all' or user.get('department') == department) and \
+               (job_role == 'all' or user.get('job_role') == job_role):
+                user['email'] = username  # Add email to user data
+                employees[user['employee_id']] = user
+
+    # Create workbook
+    wb = Workbook()
+    ws = wb.active
+    ws.title = f"Attendance Report {month}"
+
+    # Set column widths and headers
+    headers = [
+        'Employee ID', 'Name', 'Email', 'Department', 'Job Role', 'Mobile', 'Join Date', 'Date', 
+        'Check In', 'Check Out', 'Total Hours', 'Weekly Total Hours', 'Location', 'Leave Taken', 'Leave Balance'
+    ]
+    column_widths = [15, 25, 30, 20, 20, 15, 15, 15, 15, 15, 15, 15, 25, 15, 15]
+
+    # Set headers and column widths
+    for col, (header, width) in enumerate(zip(headers, column_widths), 1):
+        ws.cell(row=1, column=col, value=header)
+        ws.column_dimensions[chr(64 + col)].width = width
+
+    # Style headers
+    for cell in ws[1]:
+        cell.font = Font(bold=True)
+        cell.fill = PatternFill(start_color="CCCCCC", end_color="CCCCCC", fill_type="solid")
+
+    row = 2
+    for emp_id, emp_data in employees.items():
+        # Calculate weekly hours and leave data
+        weekly_hours = {}
+        leave_balance = {
+            'PL': 12,
+            'CL': 6,
+            'ML': 7,
+            'Other': 5
+        }
+        leaves_taken = 0
+
+        # Calculate used leaves
+        if 'leaves' in db and emp_id in db['leaves']:
+            for leave in db['leaves'][emp_id].values():
+                if leave['status'] == 'approved':
+                    start = datetime.strptime(leave['start_date'], '%Y-%m-%d')
+                    end = datetime.strptime(leave['end_date'], '%Y-%m-%d')
+                    days = (end - start).days + 1
+                    leave_type = leave['type']
+                    if leave_type in leave_balance:
+                        leave_balance[leave_type] -= days
+                    leaves_taken += days
+
+        if 'attendance' in db and emp_id in db['attendance']:
+            for date, att_data in db['attendance'][emp_id].items():
+                if date.startswith(month):
+                    # Calculate week number for the date
+                    date_obj = datetime.strptime(date, '%Y-%m-%d')
+                    week_num = date_obj.strftime('%Y-W%W')
+
+                    # Add hours to weekly total
+                    if 'working_hours' in att_data:
+                        weekly_hours[week_num] = weekly_hours.get(week_num, 0) + att_data['working_hours']
+
+                    # Write row data with full employee details
+                    ws.cell(row=row, column=1, value=emp_id)
+                    ws.cell(row=row, column=2, value=emp_data['name'])
+                    ws.cell(row=row, column=3, value=emp_data['email'])
+                    ws.cell(row=row, column=4, value=emp_data.get('department', 'N/A'))
+                    ws.cell(row=row, column=5, value=emp_data.get('job_role', 'N/A'))
+                    ws.cell(row=row, column=6, value=emp_data.get('mobile', 'N/A'))
+                    ws.cell(row=row, column=7, value=emp_data.get('join_date', 'N/A'))
+                    ws.cell(row=row, column=8, value=date)
+                    ws.cell(row=row, column=9, value=att_data.get('check_in', 'N/A'))
+                    ws.cell(row=row, column=10, value=att_data.get('check_out', 'N/A'))
+                    ws.cell(row=row, column=11, value=att_data.get('working_hours', 'N/A'))
+                    ws.cell(row=row, column=12, value=weekly_hours.get(week_num, 0))
+                    ws.cell(row=row, column=13, value=att_data.get('location', 'N/A'))
+                    ws.cell(row=row, column=14, value=leaves_taken)
+                    ws.cell(row=row, column=15, value=sum(leave_balance.values()))
+                    row += 1
+
+    # Save to BytesIO
+    excel_file = BytesIO()
+    wb.save(excel_file)
+    excel_file.seek(0)
+
+    return send_file(
+        excel_file,
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        as_attachment=True,
+        download_name=f'attendance_report_{month}.xlsx'
+    )
+
+@app.route('/notices')
+def view_notices():
+    if 'username' not in session:
+        return redirect(url_for('home'))
+
+    db = get_db()
+    user_data = db['users'][session['username']]
+    all_notices = db.get('notices', {})
+
+    # Filter notices based on target
+    visible_notices = {}
+    for notice_id, notice in all_notices.items():
+        target = notice['target']
+        if (target['type'] == 'all' or
+            (target['type'] == 'department' and target['value'] == user_data.get('department')) or
+            (target['type'] == 'job_role' and target['value'] == user_data.get('job_role')) or
+            (target['type'] == 'employee' and target['value'] == user_data['employee_id'])):
+            visible_notices[notice_id] = notice
+
+    return render_template('notices.html', notices=visible_notices)
+
+@app.route('/employee_directory')
+def employee_directory():
+    if 'username' not in session:
+        return redirect(url_for('home'))
+
+    db = get_db()
+
+    # Get all employees with complete information
+    employees = []
+    departments = set()
+    job_roles = set()
+
+    for username, user in db['users'].items():
+        if user['role'] == 'employee':
+            employee_data = user.copy()
+            employee_data['email'] = username
+            employee_data['phone'] = user.get('mobile', 'Not provided')
+            employee_data['department'] = user.get('department', 'General')
+            employee_data['job_role'] = user.get('job_role', 'Employee')
+            employee_data['join_date'] = user.get('join_date', 'Not available')
+            employee_data['avatar'] = None
+
+            if employee_data['department']:
+                departments.add(employee_data['department'])
+            if employee_data['job_role']:
+                job_roles.add(employee_data['job_role'])
+
+            employees.append(employee_data)
+
+    return render_template('employee_directory.html', 
+                         employees=employees,
+                         departments=sorted(list(departments)),
+                         job_roles=sorted(list(job_roles)))
+
+@app.route('/api/employee/<employee_id>')
+def get_employee(employee_id):
+    if 'username' not in session or session['role'] != 'admin':
+        returnjsonify({'success': False, 'message': 'Unauthorized'}), 401
 
     db = get_db()
     for username, user in db['users'].items():

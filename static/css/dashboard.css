@@ -136,6 +136,7 @@
 .stat-icon.absent { background-color: #f44336; color: white; }
 .stat-icon.leave { background-color: #FF9800; color: white; }
 .stat-icon.percentage { background-color: #2196F3; color: white; }
+.stat-icon.hours { background-color: #9C27B0; color: white; }
 
 .stat-number {
     font-size: 1.8rem;
