@@ -502,16 +502,55 @@
 
 /* Responsive */
 @media (max-width: 480px) {
-  .login-card {
-    padding: 20px;
-  }
-
-  .auth-form input {
+  .login-container {
+    width: 90%;
     padding: 10px;
   }
 
+  .login-card {
+    padding: 15px;
+    margin: 10px;
+    height: auto;
+    min-height: 450px;
+  }
+
+  .auth-form {
+    padding: 10px 5px;
+    max-height: none;
+    overflow-y: visible;
+  }
+
+  .auth-form input,
+  .auth-form select {
+    padding: 12px;
+    font-size: 16px;
+  }
+
+  .auth-tabs {
+    margin: -15px -15px 20px;
+    border-radius: 20px 20px 0 0;
+  }
+
+  .tab-btn {
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  .login-header {
+    margin-bottom: 20px;
+  }
+
   .login-header h1 {
-    font-size: 2rem;
+    font-size: 1.8rem;
+  }
+
+  .form-group {
+    margin-bottom: 12px;
+  }
+
+  .auth-form button {
+    margin-top: 15px;
+    padding: 12px;
   }
 }
 
