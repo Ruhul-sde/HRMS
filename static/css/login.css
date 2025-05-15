@@ -134,6 +134,20 @@
   max-height: calc(85vh - 120px);
   scrollbar-gutter: stable;
   -webkit-overflow-scrolling: touch;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+@media (max-width: 480px) {
+  .auth-form {
+    max-height: calc(100vh - 180px);
+    padding-bottom: 40px;
+  }
+  
+  .login-card {
+    height: 90vh;
+    margin: 20px;
+  }
 }
 
 #signup-form {
