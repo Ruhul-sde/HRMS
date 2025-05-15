@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Attendance Reports - Geo Attendance System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/attendance.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <div class="container">
+        <div class="attendance-header">
+            <div class="header-content">
+                <h1><i class="fas fa-clipboard-list"></i> Employee Attendance Reports</h1>
+                <p class="subtitle">Real-time attendance tracking and analytics</p>
+            </div>
+
+            <form method="get" action="{{ url_for('admin_attendance_report') }}" class="filter-form" id="filterForm">
+                <div class="form-group">
+                    <label for="department">Department:</label>
+                    <select name="department" id="department" class="modern-select" onchange="document.getElementById('filterForm').submit()">
+                        <option value="all">All Departments</option>
+                        {% for dept in departments %}
+                        <option value="{{ dept }}" {% if dept == selected_department %}selected{% endif %}>{{ dept }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="job_role">Job Role:</label>
+                    <select name="job_role" id="job_role" class="modern-select" onchange="document.getElementById('filterForm').submit()">
+                        <option value="all">All Roles</option>
+                        {% for role in job_roles %}
+                        <option value="{{ role }}" {% if role == selected_job_role %}selected{% endif %}>{{ role }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="employee_id">Employee:</label>
+                    <select name="employee_id" id="employee_id" class="modern-select" onchange="document.getElementById('filterForm').submit()">
+                        <option value="">Select Employee</option>
+                        {% for emp_id, name in employees.items() %}
+                        <option value="{{ emp_id }}" {% if emp_id == selected_employee %}selected{% endif %}>{{ name }} ({{ emp_id }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="month">Month:</label>
+                    <select name="month" id="month" class="modern-select" onchange="document.getElementById('filterForm').submit()">
+                        {% for m in all_months %}
+                        <option value="{{ m }}" {% if m == month %}selected{% endif %}>{{ m }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </form>
+        </div>
+
+        {% if selected_employee %}
+        <div class="analytics-section">
+            <div class="chart-container">
+                <canvas id="attendanceChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <canvas id="workingHoursChart"></canvas>
+            </div>
+        </div>
+
+        <div class="stats-cards">
+            <div class="stat-card">
+                <div class="stat-icon present">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-details">
+                    <h3>Present Days</h3>
+                    <div class="stat-value">{{ stats.present_days }}</div>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: {{ (stats.present_days/30)*100 }}%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon leave">
+                    <i class="fas fa-calendar-minus"></i>
+                </div>
+                <div class="stat-details">
+                    <h3>Leave Days</h3>
+                    <div class="stat-value">{{ stats.leave_days }}</div>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: {{ (stats.leave_days/30)*100 }}%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon hours">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-details">
+                    <h3>Weekly Hours</h3>
+                    <div class="stat-value">{{ stats.weekly_hours }}</div>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: {{ (stats.weekly_hours/40)*100 }}%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="export-section">
+            <div class="export-header">
+                <h3><i class="fas fa-file-export"></i> Export Report</h3>
+                <p class="export-subtitle">Download or print attendance records</p>
+            </div>
+            <div class="export-container">
+                <form method="get" action="{{ url_for('download_attendance') }}" class="export-form" id="exportForm">
+                    <div class="export-options">
+                        <div class="form-group">
+                            <label for="export_department">
+                                <i class="fas fa-building"></i> Department
+                            </label>
+                            <select name="department" id="export_department" class="export-select">
+                                <option value="all">All Departments</option>
+                                {% for dept in departments %}
+                                <option value="{{ dept }}" {% if dept == selected_department %}selected{% endif %}>{{ dept }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="export_job_role">
+                                <i class="fas fa-user-tag"></i> Job Role
+                            </label>
+                            <select name="job_role" id="export_job_role" class="export-select">
+                                <option value="all">All Roles</option>
+                                {% for role in job_roles %}
+                                <option value="{{ role }}" {% if role == selected_job_role %}selected{% endif %}>{{ role }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="export_employee">
+                                <i class="fas fa-users"></i> Select Employee
+                            </label>
+                            <select name="employee_id" id="export_employee" class="export-select">
+                                <option value="all">All Employees</option>
+                                {% for emp_id, name in employees.items() %}
+                                <option value="{{ emp_id }}" {% if emp_id == selected_employee %}selected{% endif %}>
+                                    {{ name }} ({{ emp_id }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="export_month">
+                                <i class="fas fa-calendar"></i> Month
+                            </label>
+                            <select name="month" id="export_month" class="export-select">
+                                {% for m in all_months %}
+                                <option value="{{ m }}" {% if m == month %}selected{% endif %}>{{ m }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="export_format">
+                                <i class="fas fa-file-alt"></i> Export Format
+                            </label>
+                            <select name="format" id="export_format" class="export-select">
+                                <option value="excel">Excel (.xlsx)</option>
+                                <option value="pdf">PDF Report</option>
+                                <option value="csv">CSV File</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="export-actions">
+                        <button type="submit" class="btn-export">
+                            <i class="fas fa-file-excel"></i> Export to Excel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="attendance-card">
+            <div class="card-header modern">
+                <h2><i class="fas fa-calendar-check"></i> Daily Attendance Log</h2>
+                <div class="legend">
+                    <div class="legend-item">
+                        <i class="fas fa-circle present"></i> Present
+                    </div>
+                    <div class="legend-item">
+                        <i class="fas fa-circle absent"></i> Absent
+                    </div>
+                </div>
+            </div>
+
+            <div class="attendance-list-container">
+                <div class="attendance-list-header">
+                    <div class="header-cell">Date</div>
+                    <div class="header-cell">Check In</div>
+                    <div class="header-cell">Check Out</div>
+                    <div class="header-cell">Hours</div>
+                    <div class="header-cell">Location</div>
+                    <div class="header-cell">Status</div>
+                </div>
+                <div class="attendance-list-body">
+                    {% for date in month_dates %}
+                    <div class="attendance-list-item {{ 'present-row' if date in attendance_data else 'absent-row' }}">
+                        <div class="list-cell date-cell">
+                            <span class="date-day">{{ date.split('-')[2] }}</span>
+                            <span class="date-month">{{ date.split('-')[1] }}</span>
+                        </div>
+                        <div class="list-cell time-cell">
+                            <i class="fas fa-sign-in-alt"></i>
+                            {{ attendance_data[date].check_in if date in attendance_data else '-' }}
+                        </div>
+                        <div class="list-cell time-cell">
+                            <i class="fas fa-sign-out-alt"></i>
+                            {{ attendance_data[date].check_out if date in attendance_data and 'check_out' in attendance_data[date] else '-' }}
+                        </div>
+                        <div class="list-cell">
+                            <i class="fas fa-clock"></i>
+                            {{ "%.2f"|format(attendance_data[date].working_hours) if date in attendance_data and 'working_hours' in attendance_data[date] else '-' }}
+                        </div>
+                        <div class="list-cell location-cell">
+                            <i class="fas fa-map-marker-alt"></i>
+                            {{ attendance_data[date].location if date in attendance_data else '-' }}
+                        </div>
+                        <div class="list-cell">
+                            {% if date in attendance_data %}
+                            <span class="status-badge status-present">
+                                <i class="fas fa-check"></i> Present
+                            </span>
+                            {% else %}
+                            <span class="status-badge status-absent">
+                                <i class="fas fa-times"></i> Absent
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-user-clock"></i>
+            <p>Please select an employee to view attendance report</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Initialize charts when employee is selected
+        {% if selected_employee %}
+        const ctx1 = document.getElementById('attendanceChart').getContext('2d');
+        new Chart(ctx1, {
+            type: 'doughnut',
+            data: {
+                labels: ['Present', 'Leave', 'Absent'],
+                datasets: [{
+                    data: [{{ stats.present_days }}, {{ stats.leave_days }}, 30 - {{ stats.present_days }} - {{ stats.leave_days }}],
+                    backgroundColor: ['#48bb78', '#4299e1', '#f56565']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Monthly Attendance Distribution'
+                    }
+                }
+            }
+        });
+
+        const ctx2 = document.getElementById('workingHoursChart').getContext('2d');
+        new Chart(ctx2, {
+            type: 'line',
+            data: {
+                labels: {{ month_dates|tojson }},
+                datasets: [{
+                    label: 'Working Hours',
+                    data: [
+                    {% for date in month_dates %}
+                        {% if date in attendance_data and 'working_hours' in attendance_data[date] %}
+                            {{ attendance_data[date]['working_hours'] }}
+                        {% else %}
+                            0
+                        {% endif %}{% if not loop.last %},{% endif %}
+                    {% endfor %}
+                ],
+                    borderColor: '#4299e1',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Daily Working Hours'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        {% endif %}
+
+        function printReport() {
+            window.print();
+        }
+    </script>
+</body>
+</html>

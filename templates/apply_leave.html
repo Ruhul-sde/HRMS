@@ -1,0 +1,172 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apply Leave - Geo Attendance System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/leaves.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <div class="container">
+        <div class="page-header">
+            <h1><i class="fas fa-calendar-plus"></i> Apply for Leave</h1>
+            <p class="subtitle">Request time off and track your leave balance</p>
+        </div>
+
+        <div class="leave-balance-cards">
+            {% for type, balance in leave_balances.items() %}
+            <div class="balance-card">
+                <div class="balance-icon">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="balance-details">
+                    <span class="balance-value">{{ balance.remaining }}</span>
+                    <span class="balance-label">{{ type }} Balance</span>
+                    <div class="balance-progress">
+                        <div class="progress-bar">
+                            <div class="progress" style="width: {{ (balance.remaining / balance.total) * 100 }}%"></div>
+                        </div>
+                        <span class="balance-text">{{ balance.used }}/{{ balance.total }} used</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="leave-form-container">
+            <div class="form-header">
+                <i class="fas fa-file-alt"></i> Leave Application Form
+            </div>
+            <form method="post" action="{{ url_for('apply_leave') }}" class="modern-form" id="leaveForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="start_date">
+                            <i class="fas fa-calendar"></i> Start Date
+                        </label>
+                        <input type="date" id="start_date" name="start_date" class="form-control" required 
+                               min="{{ today_date }}" onchange="validateDates()">
+                        <span class="validation-message" id="start_date_message"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="end_date">
+                            <i class="fas fa-calendar"></i> End Date
+                        </label>
+                        <input type="date" id="end_date" name="end_date" class="form-control" required
+                               min="{{ today_date }}" onchange="validateDates()">
+                        <span class="validation-message" id="end_date_message"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="leave_type">
+                            <i class="fas fa-tag"></i> Leave Type
+                        </label>
+                        <select id="leave_type" name="leave_type" class="form-control" required onchange="updateRemainingDays()">
+                            {% for type in leave_types %}
+                            <option value="{{ type }}">{{ type }} ({{ leave_balances[type].remaining }} days remaining)</option>
+                            {% endfor %}
+                        </select>
+                        <div class="leave-info">
+                            <span id="selected_days">0 days selected</span>
+                            <span id="remaining_days"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="reason">
+                        <i class="fas fa-comment"></i> Reason for Leave
+                    </label>
+                    <textarea id="reason" name="reason" class="form-control" rows="4" required
+                              placeholder="Please provide a detailed reason for your leave request"></textarea>
+                    <div class="reason-helper">Minimum 10 characters required</div>
+                </div>
+                <div class="form-preview" id="leavePreview">
+                    <h3><i class="fas fa-file-alt"></i> Leave Request Summary</h3>
+                    <div class="preview-content">
+                        <p><strong>Duration:</strong> <span id="preview_duration">-</span></p>
+                        <p><strong>Leave Type:</strong> <span id="preview_type">-</span></p>
+                        <p><strong>Remaining Balance:</strong> <span id="preview_balance">-</span></p>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" id="submitBtn" disabled>
+                        <i class="fas fa-paper-plane"></i> Submit Application
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                        <i class="fas fa-undo"></i> Reset Form
+                    </button>
+                </div>
+            </form>
+
+            <script>
+                function validateDates() {
+                    const startDate = document.getElementById('start_date').value;
+                    const endDate = document.getElementById('end_date').value;
+                    const submitBtn = document.getElementById('submitBtn');
+                    
+                    if (startDate && endDate) {
+                        const start = new Date(startDate);
+                        const end = new Date(endDate);
+                        const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+                        
+                        if (end < start) {
+                            document.getElementById('end_date_message').textContent = 'End date cannot be before start date';
+                            submitBtn.disabled = true;
+                            return;
+                        }
+                        
+                        document.getElementById('selected_days').textContent = days + ' days selected';
+                        updatePreview();
+                        validateForm();
+                    }
+                }
+
+                function updateRemainingDays() {
+                    const leaveType = document.getElementById('leave_type').value;
+                    const remainingDays = {{ leave_balances|tojson }}[leaveType].remaining;
+                    document.getElementById('remaining_days').textContent = `${remainingDays} days remaining`;
+                    updatePreview();
+                }
+
+                function updatePreview() {
+                    const startDate = new Date(document.getElementById('start_date').value);
+                    const endDate = new Date(document.getElementById('end_date').value);
+                    const leaveType = document.getElementById('leave_type');
+                    const days = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+
+                    document.getElementById('preview_duration').textContent = 
+                        `${startDate.toLocaleDateString()} to ${endDate.toLocaleDateString()} (${days} days)`;
+                    document.getElementById('preview_type').textContent = leaveType.options[leaveType.selectedIndex].text;
+                    document.getElementById('preview_balance').textContent = 
+                        document.getElementById('remaining_days').textContent = `${leave_balances[leaveType.value].remaining} days`;
+                }
+
+                function validateForm() {
+                    const startDate = document.getElementById('start_date').value;
+                    const endDate = document.getElementById('end_date').value;
+                    const reason = document.getElementById('reason').value;
+                    const submitBtn = document.getElementById('submitBtn');
+                    
+                    submitBtn.disabled = !(startDate && endDate && reason.length >= 10);
+                }
+
+                function resetForm() {
+                    document.getElementById('leaveForm').reset();
+                    document.getElementById('selected_days').textContent = '0 days selected';
+                    document.getElementById('remaining_days').textContent = '';
+                    document.getElementById('preview_duration').textContent = '-';
+                    document.getElementById('preview_type').textContent = '-';
+                    document.getElementById('preview_balance').textContent = '-';
+                    document.getElementById('submitBtn').disabled = true;
+                }
+
+                document.getElementById('reason').addEventListener('input', validateForm);
+                updateRemainingDays();
+            </script>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,334 @@
+{
+  "users": {
+    "admin@akshay.com": {
+      "password": "admin123",
+      "name": "Admin User",
+      "role": "admin",
+      "employee_id": "ADMIN001"
+    },
+    "user@gmail.com": {
+      "password": "user123",
+      "name": "Test User",
+      "role": "employee",
+      "employee_id": "EMP001",
+      "manager": "admin"
+    },
+    "ruhul": {
+      "password": "ruhul",
+      "name": "Ruhul Amin",
+      "role": "employee",
+      "employee_id": "EMP003",
+      "manager": "admin",
+      "latitude": 22.497473043976605,
+      "longitude": 88.36115288589133,
+      "location_name": "Custom Location"
+    },
+    "raj": {
+      "password": "raj",
+      "name": "raj",
+      "role": "employee",
+      "employee_id": "EMP004",
+      "manager": "admin",
+      "latitude": 22.497473043976605,
+      "longitude": 88.36115288589133,
+      "location_name": "Custom Location"
+    },
+    "ruhul@ruhul.com": {
+      "password": "ruhul",
+      "name": "Ruhul Amin",
+      "mobile": "6291674191",
+      "department": "IT",
+      "job_role": "Team Lead",
+      "email": "ruhul@ruhul.com",
+      "role": "employee",
+      "employee_id": "EMP005",
+      "manager": "admin",
+      "latitude": 22.497473043976605,
+      "longitude": 88.36115288589133,
+      "location_name": "Custom Location",
+      "join_date": "2025-04-09"
+    },
+    "raj@akshay.com": {
+      "password": "12345678",
+      "name": "Raj SIr",
+      "mobile": "1234567890",
+      "department": "IT",
+      "job_role": "Senior Executive",
+      "email": "raj@akshay.com",
+      "role": "employee",
+      "employee_id": "EMP006",
+      "manager": "admin",
+      "latitude": 22.497473043976605,
+      "longitude": 88.36115288589133,
+      "location_name": "Custom Location",
+      "join_date": "2025-04-09"
+    },
+    "abc@gmail.com": {
+      "password": "ZVNDjYBP",
+      "name": "abc",
+      "role": "employee",
+      "employee_id": "EMP002",
+      "manager": "admin",
+      "department": "IT",
+      "job_role": "Team Lead",
+      "mobile": "1234567890"
+    },
+    "raj@raj.com": {
+      "password": "Raj@1234",
+      "name": "Raj Roy",
+      "mobile": "1234567890",
+      "department": "IT",
+      "job_role": "Manager",
+      "email": "raj@raj.com",
+      "role": "employee",
+      "employee_id": "EMP007",
+      "manager": "admin",
+      "latitude": 22.497473043976605,
+      "longitude": 88.36115288589133,
+      "location_name": "Custom Location",
+      "join_date": "2025-04-16"
+    },
+    "ruhul@akshay.com": {
+      "password": "Rastl@6544",
+      "name": "Ruhul Amin",
+      "mobile": "7407567121",
+      "department": "IT",
+      "job_role": "Software Engineer",
+      "email": "ruhul@akshay.com",
+      "role": "employee",
+      "employee_id": "EMP008",
+      "manager": "admin",
+      "latitude": 22.497473043976605,
+      "longitude": 88.36115288589133,
+      "location_name": "Custom Location",
+      "join_date": "2025-05-04"
+    }
+  },
+  "locations": {
+    "loc1": {
+      "name": "Main Office",
+      "latitude": 28.7041,
+      "longitude": 77.1025,
+      "radius": 100
+    },
+    "loc2": {
+      "name": "Branch Office",
+      "latitude": 28.6139,
+      "longitude": 77.209,
+      "radius": 100
+    }
+  },
+  "attendance": {
+    "EMP003": {
+      "2025-03-28": {
+        "check_in": "09:27:27",
+        "location": "Custom Location",
+        "status": "Present",
+        "latitude": 22.497473043976605,
+        "longitude": 88.36115288589133
+      },
+      "2025-04-09": {
+        "check_in": "11:31 PM",
+        "check_out": "11:35 PM",
+        "location": "Custom Location",
+        "status": "Present",
+        "latitude": 22.497477511168224,
+        "longitude": 88.36104608413851,
+        "check_out_latitude": 22.497477511168224,
+        "check_out_longitude": 88.36104608413851,
+        "check_out_location": "Custom Location",
+        "working_hours": 0.07
+      }
+    },
+    "EMP004": {
+      "2025-03-28": {
+        "check_in": "10:00:25",
+        "location": "Custom Location",
+        "status": "Present",
+        "latitude": 22.497473043976605,
+        "longitude": 88.36115288589133
+      }
+    },
+    "EMP005": {
+      "2025-04-09": {
+        "check_in": "12:35 AM",
+        "location": "Custom Location",
+        "status": "Present",
+        "latitude": 22.497472832118945,
+        "longitude": 88.36106065822644,
+        "check_out": "12:35 AM",
+        "check_out_latitude": 22.497472832118945,
+        "check_out_longitude": 88.36106065822644,
+        "check_out_location": "Custom Location",
+        "working_hours": 0.0
+      },
+      "2025-04-10": {
+        "check_in": "11:04 PM",
+        "location": "Custom Location",
+        "status": "Present",
+        "latitude": 22.497520238369926,
+        "longitude": 88.36109550761421,
+        "check_out": "11:04 PM",
+        "check_out_latitude": 22.497520238369926,
+        "check_out_longitude": 88.36109550761421,
+        "check_out_location": "Custom Location",
+        "working_hours": 0.0
+      },
+      "2025-04-11": {
+        "check_in": "11:31 AM",
+        "location": "Custom Location",
+        "status": "Present",
+        "latitude": 22.4973877,
+        "longitude": 88.3610799,
+        "check_out": "11:32 AM",
+        "check_out_latitude": 22.4973888,
+        "check_out_longitude": 88.3610774,
+        "check_out_location": "Custom Location",
+        "working_hours": 0.02
+      }
+    },
+    "EMP007": {
+      "2025-05-04": {
+        "check_in": "04:28 PM",
+        "location": "Custom Location",
+        "status": "Present",
+        "latitude": 22.49745602862338,
+        "longitude": 88.36111164176513,
+        "check_out": "04:31 PM",
+        "check_out_latitude": 22.49745602862338,
+        "check_out_longitude": 88.36111164176513,
+        "check_out_location": "Custom Location",
+        "working_hours": 0.05
+      }
+    },
+    "EMP008": {
+      "2025-05-15": {
+        "check_in": "02:40 PM",
+        "location": "Custom Location",
+        "status": "Present",
+        "latitude": 22.49746990053728,
+        "longitude": 88.36116051248091
+      }
+    }
+  },
+  "leaves": {
+    "EMP001": {
+      "1ba1dd8c-86a8-4669-8ec7-1759b5887b2b": {
+        "start_date": "2025-03-07",
+        "end_date": "2025-03-09",
+        "reason": "ko",
+        "type": "PL",
+        "status": "approved",
+        "manager": "admin",
+        "applied_on": "2025-03-06",
+        "comment": ""
+      }
+    },
+    "EMP003": {
+      "b64c9011-c5d8-4785-82a0-1771d0ec7096": {
+        "start_date": "2025-03-29",
+        "end_date": "2025-03-30",
+        "reason": "no",
+        "type": "PL",
+        "status": "approved",
+        "manager": "admin",
+        "applied_on": "2025-03-28",
+        "comment": ""
+      },
+      "c6d7749e-07e7-4e33-a543-fe5447ee2f31": {
+        "start_date": "2025-03-29",
+        "end_date": "2025-03-30",
+        "reason": "no",
+        "type": "PL",
+        "status": "approved",
+        "manager": "admin",
+        "applied_on": "2025-03-28",
+        "comment": ""
+      }
+    },
+    "EMP005": {
+      "1a209d0f-1557-4a4d-a027-0b7d87727c46": {
+        "start_date": "2025-04-12",
+        "end_date": "2025-04-13",
+        "reason": "no",
+        "type": "ML",
+        "status": "approved",
+        "manager": "admin",
+        "applied_on": "2025-04-11",
+        "comment": ""
+      },
+      "b4c74847-ec4a-41de-a8ca-716758bf7b40": {
+        "start_date": "2025-04-12",
+        "end_date": "2025-04-30",
+        "reason": "Fuck off",
+        "type": "Other",
+        "status": "rejected",
+        "manager": "admin",
+        "applied_on": "2025-04-11",
+        "comment": ""
+      },
+      "bd5f90fb-a37b-4c92-a392-b3b8b793d33c": {
+        "start_date": "2025-04-17",
+        "end_date": "2025-04-19",
+        "reason": "i want this leave ",
+        "type": "PL",
+        "status": "pending",
+        "manager": "admin",
+        "applied_on": "2025-04-16"
+      }
+    },
+    "EMP007": {
+      "f234b868-92cb-41f6-b6eb-adf6752d51a7": {
+        "start_date": "2025-04-17",
+        "end_date": "2025-04-19",
+        "reason": "i want this leave",
+        "type": "PL",
+        "status": "pending",
+        "manager": "admin",
+        "applied_on": "2025-04-16"
+      }
+    }
+  },
+  "check_ins": {
+    "EMP005": {},
+    "EMP007": {},
+    "EMP008": {}
+  },
+  "check_outs": {
+    "EMP005": {},
+    "EMP007": {},
+    "EMP008": {}
+  },
+  "notices": {
+    "notice1": {
+      "title": "Welcome to New HR System",
+      "content": "We have launched our new HR system",
+      "posted_by": "admin",
+      "posted_on": "2025-04-10",
+      "target": {
+        "type": "all",
+        "value": ""
+      }
+    },
+    "4890543a-8920-48ed-b974-c499c1265e21": {
+      "title": "Testing ",
+      "content": "Testing  the notice of HRMS ",
+      "posted_by": "admin@akshay.com",
+      "posted_on": "2025-05-04",
+      "target": {
+        "type": null,
+        "value": ""
+      }
+    }
+  },
+  "settings": {
+    "departments": [
+      "Information Technology",
+      "Human Resources"
+    ],
+    "job_roles": [
+      "Team Lead",
+      "Trainee engineer"
+    ]
+  }
+}

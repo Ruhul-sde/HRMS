@@ -1,0 +1,238 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Attendance - Geo Attendance System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/attendance.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <div class="container">
+        <div class="attendance-header">
+            <div class="header-content">
+                <h1><i class="fas fa-calendar-check"></i> My Attendance</h1>
+                <p class="subtitle">Track and manage your attendance records</p>
+            </div>
+            <div class="date-selector">
+                <form method="get" action="{{ url_for('attendance_report') }}" class="month-picker">
+                    <select name="month" id="month" class="modern-select">
+                        {% for m in all_months %}
+                        <option value="{{ m }}" {% if m == month %}selected{% endif %}>{{ m }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-sync-alt"></i> Update
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="stats-cards">
+            <div class="stat-card">
+                <div class="stat-icon present">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-details">
+                    <h3>Present Days</h3>
+                    <p class="stat-value">{{ stats.present_days }}</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon absent">
+                    <i class="fas fa-times-circle"></i>
+                </div>
+                <div class="stat-details">
+                    <h3>Absent Days</h3>
+                    <p class="stat-value">{{ stats.absent_days }}</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon percentage">
+                    <i class="fas fa-percentage"></i>
+                </div>
+                <div class="stat-details">
+                    <h3>Attendance Rate</h3>
+                    <p class="stat-value">{{ stats.attendance_percentage }}%</p>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: {{ stats.attendance_percentage }}%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="attendance-card">
+            <div class="analytics-section">
+                <div class="chart-container">
+                    <canvas id="attendanceChart"></canvas>
+                </div>
+                <div class="chart-container" style="height: 300px;">
+                    <canvas id="weeklyTrendChart"></canvas>
+                </div>
+            </div>
+            <div class="card-header modern">
+                <h2><i class="fas fa-calendar"></i> Monthly Overview</h2>
+                <div class="legend">
+                    <span class="legend-item"><i class="fas fa-circle present"></i> Present</span>
+                    <span class="legend-item"><i class="fas fa-circle absent"></i> Absent</span>
+                </div>
+            </div>
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <script>
+                const presentDays = {{ stats.present_days }};
+                const absentDays = {{ stats.absent_days }};
+                
+                // Attendance Distribution Chart
+                new Chart(document.getElementById('attendanceChart'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Present', 'Absent'],
+                        datasets: [{
+                            data: [presentDays, absentDays],
+                            backgroundColor: ['#4CAF50', '#f44336'],
+                            borderWidth: 0,
+                            borderRadius: 5
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Attendance Distribution'
+                            }
+                        },
+                        cutout: '70%'
+                    }
+                });
+
+                // Monthly Trend Chart
+                new Chart(document.getElementById('weeklyTrendChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: [{% for date in month_dates %}'{{ date }}'{% if not loop.last %}, {% endif %}{% endfor %}],
+                        datasets: [{
+                            label: 'Attendance Status',
+                            data: [
+                                {% for date in month_dates %}
+                                    {% if date in attendance_data %}1{% else %}0{% endif %}{% if not loop.last %}, {% endif %}
+                                {% endfor %}
+                            ],
+                            backgroundColor: [
+                                {% for date in month_dates %}
+                                    {% if date in attendance_data %}
+                                        'rgba(75, 192, 192, 0.5)'
+                                    {% else %}
+                                        'rgba(255, 99, 132, 0.5)'
+                                    {% endif %}{% if not loop.last %}, {% endif %}
+                                {% endfor %}
+                            ],
+                            borderColor: [
+                                {% for date in month_dates %}
+                                    {% if date in attendance_data %}
+                                        'rgba(75, 192, 192, 1)'
+                                    {% else %}
+                                        'rgba(255, 99, 132, 1)'
+                                    {% endif %}{% if not loop.last %}, {% endif %}
+                                {% endfor %}
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            title: {
+                                display: true,
+                                text: 'Monthly Attendance Trend'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 1,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value === 1 ? 'Present' : 'Absent';
+                                    }
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    maxRotation: 45,
+                                    minRotation: 45,
+                                    callback: function(value, index) {
+                                        const date = this.getLabelForValue(value);
+                                        return date.split('-')[2]; // Show only day
+                                    }
+                                }
+                            }
+                        },
+                        maintainAspectRatio: false,
+                        height: 300
+                    }
+                });
+            </script>
+            <div class="attendance-list-container">
+                <div class="attendance-list-header">
+                    <div class="header-cell">Date</div>
+                    <div class="header-cell">Status</div>
+                    <div class="header-cell">Check-in Time</div>
+                    <div class="header-cell">Location</div>
+                </div>
+                <div class="attendance-list-body">
+                    {% for date in month_dates %}
+                    <div class="attendance-list-item {{ 'present-row' if date in attendance_data else 'absent-row' }}">
+                        <div class="list-cell date-cell">
+                            <span class="date-day">{{ date.split('-')[2] }}</span>
+                            <span class="date-month">{{ date.split('-')[1] }}</span>
+                        </div>
+                        <div class="list-cell status-cell">
+                            {% if date in attendance_data %}
+                            <span class="status-badge status-present">
+                                <i class="fas fa-check-circle"></i>
+                                Present
+                            </span>
+                            {% else %}
+                            <span class="status-badge status-absent">
+                                <i class="fas fa-times-circle"></i>
+                                Absent
+                            </span>
+                            {% endif %}
+                        </div>
+                        <div class="list-cell time-cell">
+                            {% if date in attendance_data %}
+                            <i class="fas fa-clock"></i>
+                            {{ attendance_data[date].check_in }}
+                            {% else %}
+                            -
+                            {% endif %}
+                        </div>
+                        <div class="list-cell location-cell">
+                            {% if date in attendance_data %}
+                            <i class="fas fa-map-marker-alt"></i>
+                            {{ attendance_data[date].location }}
+                            {% else %}
+                            -
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Akshay Software Technologies</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <div class="profile-container">
+        <div class="profile-header">
+            <div class="header-content">
+                <div class="header-info">
+                    <h1><i class="fas fa-user-circle"></i> My Profile</h1>
+                    <div class="header-status">Last updated: {{ user.last_updated|default('Today', true) }}</div>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-primary" onclick="openEditModal()">
+                        <i class="fas fa-edit"></i> Edit Profile
+                    </button>
+                    <button class="btn btn-outline" onclick="openPasswordModal()">
+                        <i class="fas fa-key"></i> Change Password
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-grid">
+            <div class="profile-sidebar">
+                <div class="profile-card">
+                    <div class="profile-cover"></div>
+                    <div class="profile-info">
+                        <div class="profile-avatar">
+                            {{ user.name[:1] }}
+                        </div>
+                        <h2 class="profile-name">{{ user.name }}</h2>
+                        <div class="profile-role">{{ user.role|capitalize }}</div>
+                        <div class="profile-id">{{ user.employee_id }}</div>
+
+                        <div class="profile-stats">
+                            <div class="stat-item">
+                                <div class="stat-value">{{ stats.present_days|default(0) }}</div>
+                                <div class="stat-label">Present Days</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">{{ stats.leave_days|default(0) }}</div>
+                                <div class="stat-label">Leave Days</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">{{ stats.attendance_percentage|default(0) }}%</div>
+                                <div class="stat-label">Attendance</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-content">
+                <div class="content-card">
+                    <div class="card-header">
+                        <i class="fas fa-info-circle"></i> Personal Information
+                    </div>
+                    <div class="card-body">
+                        <div class="info-group">
+                            <div class="info-item">
+                                <div class="info-label">Full Name</div>
+                                <div class="info-value">{{ user.name }}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Email</div>
+                                <div class="info-value">{{ user.email }}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Mobile Number</div>
+                                <div class="info-value">{{ user.mobile|default('Not Set') }}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Department</div>
+                                <div class="info-value">{{ user.department|default('Not Set') }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <div class="card-header">
+                        <i class="fas fa-briefcase"></i> Employment Details
+                    </div>
+                    <div class="card-body">
+                        <div class="info-group">
+                            <div class="info-item">
+                                <div class="info-label">Position</div>
+                                <div class="info-value">{{ user.job_role|default('Not Set') }}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Join Date</div>
+                                <div class="info-value">{{ user.join_date|default('Not Set') }}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Manager</div>
+                                <div class="info-value">{{ user.manager|default('Not Set') }}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Location</div>
+                                <div class="info-value">{{ user.location_name|default('Not Set') }}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Coordinates</div>
+                                <div class="info-value coordinates">
+                                    <span>Lat: {{ "%.6f"|format(user.latitude|float) }}</span>
+                                    <span>Long: {{ "%.6f"|format(user.longitude|float) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <div class="card-header">
+                        <i class="fas fa-calendar-check"></i> Leave Balance
+                    </div>
+                    <div class="card-body">
+                        <div class="info-group">
+                            <div class="info-item">
+                                <div class="info-label">Paid Leave (PL)</div>
+                                <div class="info-value">
+                                    <span class="leave-total">{{ leaves.pl_remaining|default(12) }}</span>
+                                    <span class="leave-allocated">/ 12 days</span>
+                                    <div class="leave-progress">
+                                        <div class="progress-bar">
+                                            <div class="progress" style="width: {{ (leaves.pl_remaining|default(12) / 12 * 100)|round }}%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Casual Leave (CL)</div>
+                                <div class="info-value">
+                                    <span class="leave-total">{{ leaves.cl_remaining|default(6) }}</span>
+                                    <span class="leave-allocated">/ 6 days</span>
+                                    <div class="leave-progress">
+                                        <div class="progress-bar">
+                                            <div class="progress" style="width: {{ (leaves.cl_remaining|default(6) / 6 * 100)|round }}%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Medical Leave (ML)</div>
+                                <div class="info-value">
+                                    <span class="leave-total">{{ leaves.ml_remaining|default(7) }}</span>
+                                    <span class="leave-allocated">/ 7 days</span>
+                                    <div class="leave-progress">
+                                        <div class="progress-bar">
+                                            <div class="progress" style="width: {{ (leaves.ml_remaining|default(7) / 7 * 100)|round }}%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <div class="card-header">
+                        <i class="fas fa-file-alt"></i> Documents
+                    </div>
+                    <div class="card-body">
+                        <div class="info-group">
+                            <div class="info-item">
+                                <div class="info-label">Profile Picture</div>
+                                <div class="info-value">
+                                    {% if user.profile_pic_path %}
+                                        <a href="{{ user.profile_pic_path }}" target="_blank">View</a>
+                                    {% else %}
+                                        Not uploaded
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">PAN Card</div>
+                                <div class="info-value">
+                                    {% if user.pan_card_path %}
+                                        <a href="{{ user.pan_card_path }}" target="_blank">View</a>
+                                    {% else %}
+                                        Not uploaded
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Aadhar Card</div>
+                                <div class="info-value">
+                                    {% if user.aadhar_card_path %}
+                                        <a href="{{ user.aadhar_card_path }}" target="_blank">View</a>
+                                    {% else %}
+                                        Not uploaded
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Resume</div>
+                                <div class="info-value">
+                                    {% if user.resume_path %}
+                                        <a href="{{ user.resume_path }}" target="_blank">View</a>
+                                    {% else %}
+                                        Not uploaded
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    {% include 'modals/edit_profile.html' %}
+    {% include 'modals/change_password.html' %}
+
+    <script src="{{ url_for('static', filename='js/profile.js') }}"></script>
+</body>
+</html>

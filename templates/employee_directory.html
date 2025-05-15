@@ -1,0 +1,296 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Directory - Geo Attendance System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <div class="container">
+        <div class="directory-header">
+            <div class="header-content">
+                <h1><i class="fas fa-users"></i> Employee Directory</h1>
+                <p class="subtitle">Connect with your colleagues across departments</p>
+            </div>
+        </div>
+
+        <div class="directory-tools">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="employeeSearch" placeholder="Search by name, role, or department..." class="search-input">
+            </div>
+
+            <div class="filter-options">
+                <div class="filter-group">
+                    <i class="fas fa-building"></i>
+                    <select id="departmentFilter" class="modern-select">
+                        <option value="">All Departments</option>
+                        {% for department in departments %}
+                        <option value="{{ department }}">{{ department }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <i class="fas fa-user-tag"></i>
+                    <select id="roleFilter" class="modern-select">
+                        <option value="">All Roles</option>
+                        {% for role in job_roles %}
+                        <option value="{{ role }}">{{ role }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="employee-grid">
+            {% for employee in employees %}
+            <div class="employee-card" 
+                 data-department="{{ employee.department }}" 
+                 data-role="{{ employee.job_role }}">
+                <div class="card-header">
+                    <div class="header-content">
+                        <div class="employee-avatar">
+                            {% if employee.avatar %}
+                            <img src="{{ url_for('static', filename='uploads/' + employee.avatar) }}" alt="{{ employee.name }}" onerror="this.src='{{ url_for('static', filename='images/default-avatar.png') }}'; this.onerror=null;">
+                            {% else %}
+                            <div class="avatar-text">{{ employee.name[:1] | upper }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="employee-badges">
+                            {% if employee.department %}
+                            <span class="department-badge"><i class="fas fa-building"></i> {{ employee.department }}</span>
+                            {% endif %}
+                            {% if employee.job_role %}
+                            <span class="role-badge"><i class="fas fa-briefcase"></i> {{ employee.job_role }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <h3 class="employee-name">{{ employee.name }}</h3>
+                    <p class="employee-id">{{ employee.employee_id }}</p>
+
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <i class="fas fa-envelope"></i>
+                            <span>{{ employee.email }}</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-phone"></i>
+                            <span>{{ employee.phone }}</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>Joined: {{ employee.join_date }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer">
+                    <button class="btn btn-primary" onclick="viewProfile('{{ employee.employee_id }}')">
+                        <i class="fas fa-user"></i> View Profile
+                    </button>
+                    {% if session.role == 'admin' %}
+                    <button class="btn btn-secondary" onclick="editProfile('{{ employee.employee_id }}')">
+                        <i class="fas fa-edit"></i> Edit Profile
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-user-edit"></i> Edit Employee Profile</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="editProfileForm" onsubmit="updateEmployeeProfile(event)">
+                    <input type="hidden" id="employeeId" name="employee_id">
+                    <div class="form-group">
+                        <label><i class="fas fa-user"></i> Full Name</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-building"></i> Department</label>
+                        <select id="department" name="department" required>
+                            <option value="">Select Department</option>
+                            <option value="IT">IT</option>
+                            <option value="HR">HR</option>
+                            <option value="Finance">Finance</option>
+                            <option value="Marketing">Marketing</option>
+                            <option value="Operations">Operations</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-user-tag"></i> Job Role</label>
+                        <select id="jobRole" name="job_role" required>
+                            <option value="">Select Role</option>
+                            <option value="Team Lead-Support">Team Lead-Support</option>
+                            <option value="Software Engineer">Software Engineer</option>
+                            <option value="Senior Software Test Engineer">Senior Software Test Engineer</option>
+                            <option value="Senior Software Engineer">Senior Software Engineer</option>
+                            <option value="Business Operation Consultant">Business Operation Consultant</option>
+                            <option value="Software Support Engineer">Software Support Engineer</option>
+                            <option value="Senior Software Support Engineer">Senior Software Support Engineer</option>
+                            <option value="Software Developer">Software Developer</option>
+                            <option value="Project Co-ordinator">Project Co-ordinator</option>
+                            <option value="EJ Software Support Engineer">EJ Software Support Engineer</option>
+                            <option value="IT Helpdesk">IT Helpdesk</option>
+                            <option value="Application Support Engineer">Application Support Engineer</option>
+                            <option value="Test Engineer">Test Engineer</option>
+                            <option value="Staff Consultant">Staff Consultant</option>
+                            <option value="Support Engineer">Support Engineer</option>
+                            <option value="Software Tester">Software Tester</option>
+                            <option value="Team Leader">Team Leader</option>
+                            <option value="Reconciliation Analyst">Reconciliation Analyst</option>
+                            <option value="Sr. Project Coordinator">Sr. Project Coordinator</option>
+                            <option value="Helpdesk Executive">Helpdesk Executive</option>
+                            <option value="Software Test Engineer">Software Test Engineer</option>
+                            <option value="Sr Lead Software Support">Sr Lead Software Support</option>
+                            <option value="Helpdesk Technical Support Executive">Helpdesk Technical Support Executive</option>
+                            <option value="Technical Support Engineer">Technical Support Engineer</option>
+                            <option value="Project Manager">Project Manager</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-phone"></i> Mobile</label>
+                        <input type="tel" id="mobile" name="mobile" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-envelope"></i> Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline" onclick="closeModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function viewProfile(employeeId) {
+            window.location.href = `/profile/${employeeId}`;
+        }
+
+        function editProfile(employeeId) {
+            fetch(`/api/employee/${employeeId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success === false) {
+                        alert('Failed to load employee data');
+                        return;
+                    }
+                    const modal = document.getElementById('editProfileModal');
+                    if (!modal) return;
+                    
+                    document.getElementById('employeeId').value = employeeId;
+                    document.getElementById('name').value = data.name || '';
+                    document.getElementById('department').value = data.department || '';
+                    document.getElementById('jobRole').value = data.job_role || '';
+                    document.getElementById('mobile').value = data.mobile || '';
+                    document.getElementById('email').value = data.email || '';
+                    modal.style.display = 'flex';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to load employee data');
+                });
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('editProfileModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('editProfileModal').style.display = 'none';
+        }
+
+        function updateEmployeeProfile(event) {
+            event.preventDefault();
+            const form = event.target;
+            const data = {};
+            
+            // Only include fields that have been changed
+            const formData = new FormData(form);
+            for (let [key, value] of formData.entries()) {
+                const input = form.elements[key];
+                if (input.type !== 'hidden' && input.defaultValue !== value && value !== '') {
+                    data[key] = value;
+                }
+            }
+            data.employee_id = form.elements.employee_id.value;
+
+            fetch('/api/update_employee', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    closeModal();
+                    location.reload();
+                } else {
+                    alert('Failed to update profile: ' + result.message);
+                }
+            });
+        }
+
+        // Search and filter functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('employeeSearch');
+            const departmentFilter = document.getElementById('departmentFilter');
+            const roleFilter = document.getElementById('roleFilter');
+            const employeeCards = document.querySelectorAll('.employee-card');
+
+            function filterEmployees() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const departmentValue = departmentFilter.value.toLowerCase();
+                const roleValue = roleFilter.value.toLowerCase();
+
+                employeeCards.forEach(card => {
+                    const cardContent = card.textContent.toLowerCase();
+                    const department = card.getAttribute('data-department').toLowerCase();
+                    const role = card.getAttribute('data-role').toLowerCase();
+
+                    const matchesSearch = cardContent.includes(searchTerm);
+                    const matchesDepartment = !departmentValue || department === departmentValue;
+                    const matchesRole = !roleValue || role === roleValue;
+
+                    if (matchesSearch && matchesDepartment && matchesRole) {
+                        card.style.display = '';
+                        card.classList.add('fade-in');
+                    } else {
+                        card.style.display = 'none';
+                        card.classList.remove('fade-in');
+                    }
+                });
+            }
+
+            searchInput.addEventListener('input', filterEmployees);
+            departmentFilter.addEventListener('change', filterEmployees);
+            roleFilter.addEventListener('change', filterEmployees);
+        });
+    </script>
+</body>
+</html>

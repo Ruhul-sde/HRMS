@@ -1,0 +1,213 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Geo Attendance System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <div class="container">
+        <div class="dashboard-header">
+            <h1><i class="fas fa-tachometer-alt"></i> Welcome, {{ user.name }}</h1>
+            <p class="dashboard-subtitle">Here's your attendance overview</p>
+        </div>
+
+        <div class="dashboard-cards">
+            <!-- Attendance Status Card -->
+            <div class="dashboard-card attendance-status">
+                <div class="card-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <h2>Today's Attendance</h2>
+                <div class="today-summary">
+                    {% if attendance_today %}
+                        <div class="status-label">
+                            <div class="status-circle"></div>
+                            <span>Status: <span class="badge badge-success">{{ attendance_today.status }}</span></span>
+                        </div>
+                        <div class="summary-item">
+                            <i class="fas fa-hourglass-start"></i>
+                            <span>Check-in: {{ attendance_today.check_in }}</span>
+                        </div>
+                        {% if attendance_today.check_out %}
+                        <div class="summary-item">
+                            <i class="fas fa-hourglass-end"></i>
+                            <span>Check-out: {{ attendance_today.check_out }}</span>
+                        </div>
+                        <div class="summary-item working-hours">
+                            <i class="fas fa-business-time"></i>
+                            <span>Working Hours: {{ attendance_today.working_hours|default(0) }} hrs</span>
+                        </div>
+                        {% else %}
+                        <button id="checkoutBtn" class="btn btn-warning">
+                            <i class="fas fa-sign-out-alt"></i> Check Out
+                        </button>
+                        {% endif %}
+                        <div class="summary-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>Location: {{ attendance_today.location }}</span>
+                        </div>
+                    {% else %}
+                        <div class="status-label">
+                            <div class="status-circle absent"></div>
+                            <span>Not marked yet</span>
+                        </div>
+                        <button id="markAttendanceBtn" class="btn btn-primary">
+                            <i class="fas fa-check-circle"></i> Mark Attendance
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Monthly Overview Card -->
+            <div class="dashboard-card stats-overview">
+                <div class="card-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h2>Monthly Overview</h2>
+                <div class="quick-stats">
+                    <div class="stat-item">
+                        <div class="stat-icon present">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-number">{{ stats.present_days }}</div>
+                        <div class="stat-label">Present Days</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon absent">
+                            <i class="fas fa-times-circle"></i>
+                        </div>
+                        <div class="stat-number">{{ stats.absent_days }}</div>
+                        <div class="stat-label">Absent Days</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon leave">
+                            <i class="fas fa-calendar-minus"></i>
+                        </div>
+                        <div class="stat-number">{{ stats.leave_days }}</div>
+                        <div class="stat-label">Leave Days</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon percentage">
+                            <i class="fas fa-percentage"></i>
+                        </div>
+                        <div class="stat-number">{{ stats.attendance_percentage }}%</div>
+                        <div class="stat-label">Attendance</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon hours">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-number">{{ stats.weekly_hours }}</div>
+                        <div class="stat-label">Weekly Hours</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions Card -->
+            <div class="dashboard-card quick-actions">
+                <div class="card-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <h2>Quick Actions</h2>
+                <div class="actions-grid">
+                    <a href="/attendance_report" class="action-item">
+                        <i class="fas fa-calendar-check"></i>
+                        <span>View Report</span>
+                    </a>
+                    <a href="/apply_leave" class="action-item">
+                        <i class="fas fa-calendar-plus"></i>
+                        <span>Apply Leave</span>
+                    </a>
+                    <a href="/leave_status" class="action-item">
+                        <i class="fas fa-clipboard-list"></i>
+                        <span>Leave Status</span>
+                    </a>
+                    <a href="/profile" class="action-item">
+                        <i class="fas fa-user"></i>
+                        <span>My Profile</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Pending Leaves Card -->
+            <div class="dashboard-card pending-leaves">
+                <div class="card-icon">
+                    <i class="fas fa-calendar-minus"></i>
+                </div>
+                <h2>Recent Leave Applications</h2>
+                {% if pending_leaves %}
+                    <div class="leave-list">
+                    {% for leave in pending_leaves %}
+                        <div class="leave-item">
+                            <div class="leave-dates">
+                                <i class="fas fa-calendar"></i>
+                                <span>{{ leave.start_date }} - {{ leave.end_date }}</span>
+                            </div>
+                            <div class="leave-type-status">
+                                <span class="leave-type">{{ leave.type }}</span>
+                                <span class="leave-status {{ leave.status }}">{{ leave.status }}</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="no-data">
+                        <i class="fas fa-inbox"></i>
+                        <p>No pending leave requests</p>
+                    </div>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Location Modal -->
+    <div id="locationModal" class="modal">
+        <div class="modal-content modern">
+            <div class="modal-header">
+                <h2><i class="fas fa-map-marker-alt"></i> Mark Attendance</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="map-container">
+                    <div id="map"></div>
+                    <div class="location-info-panel">
+                        <div class="status-container">
+                            <div id="locationStatus" class="status-panel"></div>
+                        </div>
+                        <div class="location-info">
+                            <div class="location-icon">
+                                <i class="fas fa-building"></i>
+                            </div>
+                            <div class="location-details">
+                                <h3>Current Location</h3>
+                                <p class="location-display">{{ user.location_name }}</p>
+                                <div class="coordinates-box">
+                                    <i class="fas fa-map-pin"></i>
+                                    <p class="location-coordinates" id="locationCoordinates"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="locationSelect" value="assigned">
+                        <div id="attendanceMessage" class="attendance-message"></div>
+                        <button id="confirmLocation" class="btn btn-primary">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Confirm Location & Mark Attendance</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ config.GOOGLE_MAPS_API_KEY }}&callback=initMap&v=weekly" async defer></script>
+</body>
+</html>

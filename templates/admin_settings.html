@@ -1,0 +1,137 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Settings - Geo Attendance System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/settings.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <div class="container">
+        <div class="settings-header">
+            <h1><i class="fas fa-cog"></i> System Settings</h1>
+            <p class="settings-subtitle">Manage organization structure and rules</p>
+        </div>
+
+        <div class="settings-grid">
+            <!-- Leave Balance Settings -->
+            <div class="settings-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-calendar"></i> Leave Balance Settings</h2>
+                </div>
+                <div class="settings-form">
+                    <form id="leaveBalanceForm" onsubmit="saveLeaveBalances(event)">
+                        <div class="form-group">
+                            <label>Paid Leave (PL)</label>
+                            <input type="number" id="plBalance" value="{{ leave_settings.pl }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Casual Leave (CL)</label>
+                            <input type="number" id="clBalance" value="{{ leave_settings.cl }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Medical Leave (ML)</label>
+                            <input type="number" id="mlBalance" value="{{ leave_settings.ml }}" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Leave Settings</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Department Management -->
+            <div class="settings-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-building"></i> Departments</h2>
+                    <button class="btn btn-primary" onclick="showAddDepartmentModal()">
+                        <i class="fas fa-plus"></i> Add Department
+                    </button>
+                </div>
+                <div class="settings-list" id="departmentsList">
+                    {% for dept in departments %}
+                    <div class="settings-item" data-id="{{ dept.id }}">
+                        <span class="item-name">{{ dept }}</span>
+                        <div class="item-actions">
+                            <button class="btn-icon edit-btn" onclick="editDepartment('{{ dept }}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-icon delete-btn" onclick="deleteDepartment('{{ dept }}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Job Role Management -->
+            <div class="settings-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-user-tie"></i> Job Roles</h2>
+                    <button class="btn btn-primary" onclick="showAddRoleModal()">
+                        <i class="fas fa-plus"></i> Add Role
+                    </button>
+                </div>
+                <div class="settings-list" id="rolesList">
+                    {% for role in job_roles %}
+                    <div class="settings-item" data-id="{{ role.id }}">
+                        <span class="item-name">{{ role }}</span>
+                        <div class="item-actions">
+                            <button class="btn-icon edit-btn" onclick="editRole('{{ role }}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-icon delete-btn" onclick="deleteRole('{{ role }}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Department Modal -->
+    <div id="departmentModal" class="modal">
+        <div class="modal-content">
+            <h2 id="departmentModalTitle">Add Department</h2>
+            <form id="departmentForm" onsubmit="saveDepartment(event)">
+                <input type="hidden" id="departmentId">
+                <div class="form-group">
+                    <label>Department Name</label>
+                    <input type="text" id="departmentName" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('departmentModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add/Edit Role Modal -->
+    <div id="roleModal" class="modal">
+        <div class="modal-content">
+            <h2 id="roleModalTitle">Add Role</h2>
+            <form id="roleForm" onsubmit="saveRole(event)">
+                <input type="hidden" id="roleId">
+                <div class="form-group">
+                    <label>Role Name</label>
+                    <input type="text" id="roleName" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('roleModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/settings.js') }}"></script>
+</body>
+</html>

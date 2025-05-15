@@ -1,0 +1,84 @@
+<nav class="navbar">
+    <div class="navbar-brand">
+        <img src="../static/images/logo.png" alt="Geo Attendance" class="logo">
+        <span>ASTPL Attendance System</span>
+    </div>
+
+    {% if 'username' in session %}
+    <div class="menu-toggle" id="menuToggle">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <div class="navbar-menu" id="navbarMenu">
+        {% if session['role'] != 'admin' %}
+            <a href="{{ url_for('dashboard') }}" class="{{ 'active' if request.endpoint == 'dashboard' }}">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+            <a href="{{ url_for('attendance_report') }}" class="{{ 'active' if request.endpoint == 'attendance_report' }}">
+                <i class="fas fa-calendar-check"></i> My Attendance
+            </a>
+            <a href="{{ url_for('apply_leave') }}" class="{{ 'active' if request.endpoint == 'apply_leave' }}">
+                <i class="fas fa-calendar-plus"></i> Apply Leave
+            </a>
+            <a href="{{ url_for('leave_status') }}" class="{{ 'active' if request.endpoint == 'leave_status' }}">
+                <i class="fas fa-clipboard-list"></i> Leave Status
+            </a>
+            <a href="{{ url_for('profile') }}" class="{{ 'active' if request.endpoint == 'profile' }}">
+                <i class="fas fa-user-circle"></i> My Profile
+            </a>
+            <a href="{{ url_for('view_notices') }}">Notice Board</a>
+        {% endif %}
+
+        {% if session['role'] == 'admin' %}
+        <a href="{{ url_for('admin_dashboard') }}" class="{{ 'active' if request.endpoint == 'admin_dashboard' }}">
+            <i class="fas fa-user-shield"></i> Admin Panel
+        </a>
+        <a href="{{ url_for('admin_pending_leaves') }}" class="{{ 'active' if request.endpoint == 'admin_pending_leaves' }}">
+            <i class="fas fa-tasks"></i> Approvals
+        </a>
+        <a href="{{ url_for('employee_directory') }}" class="{{ 'active' if request.endpoint == 'employee_directory' }}">
+            <i class="fas fa-address-book"></i> Directory
+        </a>
+        <a href="{{ url_for('admin_locations') }}" class="{{ 'active' if request.endpoint == 'admin_locations' }}">
+            <i class="fas fa-map-marker-alt"></i> Locations
+        </a>
+        <a href="{{ url_for('admin_employee_locations') }}" class="{{ 'active' if request.endpoint == 'admin_employee_locations' }}">
+            <i class="fas fa-users-cog"></i> Employee Locations
+        </a>
+        <a href="{{ url_for('admin_notices') }}">Manage Notices</a>
+        <a href="{{ url_for('admin_settings') }}" class="{{ 'active' if request.endpoint == 'admin_settings' }}">
+            <i class="fas fa-cog"></i> Settings
+        </a>
+        {% endif %}
+
+        <a href="{{ url_for('logout') }}" class="btn-logout">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+    </div>
+    {% endif %}
+</nav>
+
+<script>
+    // Responsive navbar functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const menuToggle = document.getElementById('menuToggle');
+        const navbarMenu = document.getElementById('navbarMenu');
+
+        if (menuToggle) {
+            menuToggle.addEventListener('click', function() {
+                navbarMenu.classList.toggle('active');
+            });
+        }
+
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            if (navbarMenu && navbarMenu.classList.contains('active') && 
+                !event.target.closest('.navbar-menu') && 
+                !event.target.closest('.menu-toggle')) {
+                navbarMenu.classList.remove('active');
+            }
+        });
+    });
+</script>
