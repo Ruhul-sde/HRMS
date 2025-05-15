@@ -13,16 +13,6 @@
       "employee_id": "EMP001",
       "manager": "admin"
     },
-    "ruhul": {
-      "password": "ruhul",
-      "name": "Ruhul Amin",
-      "role": "employee",
-      "employee_id": "EMP003",
-      "manager": "admin",
-      "latitude": 22.497473043976605,
-      "longitude": 88.36115288589133,
-      "location_name": "Custom Location"
-    },
     "raj": {
       "password": "raj",
       "name": "raj",
@@ -50,10 +40,10 @@
     },
     "raj@akshay.com": {
       "password": "12345678",
-      "name": "Raj SIr",
+      "name": "Raj Sir",
       "mobile": "1234567890",
       "department": "IT",
-      "job_role": "Senior Executive",
+      "job_role": "Support Engineer",
       "email": "raj@akshay.com",
       "role": "employee",
       "employee_id": "EMP006",
@@ -102,6 +92,19 @@
       "longitude": 88.36115288589133,
       "location_name": "Custom Location",
       "join_date": "2025-05-04"
+    },
+    "ruhul@abcd.com": {
+      "password": "ruhul",
+      "name": "Ruhul Amin",
+      "role": "employee",
+      "employee_id": "EMP003",
+      "manager": "admin",
+      "latitude": 22.497473043976605,
+      "longitude": 88.36115288589133,
+      "location_name": "Custom Location",
+      "department": "IT",
+      "job_role": "Support Engineer",
+      "mobile": "7894561230"
     }
   },
   "locations": {
@@ -272,9 +275,10 @@
         "end_date": "2025-04-19",
         "reason": "i want this leave ",
         "type": "PL",
-        "status": "pending",
+        "status": "rejected",
         "manager": "admin",
-        "applied_on": "2025-04-16"
+        "applied_on": "2025-04-16",
+        "comment": ""
       }
     },
     "EMP007": {
@@ -283,9 +287,10 @@
         "end_date": "2025-04-19",
         "reason": "i want this leave",
         "type": "PL",
-        "status": "pending",
+        "status": "rejected",
         "manager": "admin",
-        "applied_on": "2025-04-16"
+        "applied_on": "2025-04-16",
+        "comment": ""
       }
     }
   },

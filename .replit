@@ -1,11 +1,11 @@
-
-modules = ["python-3.12"]
+modules = ["bash", "web", "python-3.12", "nodejs-20"]
+run = "node index.js"
 
 [nix]
 channel = "stable-24_05"
 
 [deployment]
-run = ["sh", "-c", "python app.py"]
+run = ["sh", "-c", "node index.js"]
 
 [workflows]
 runButton = "Run"
