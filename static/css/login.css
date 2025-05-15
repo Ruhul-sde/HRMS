@@ -130,12 +130,30 @@
   overflow-y: auto;
   padding: 20px 15px;
   margin-top: 0;
-  height: 100%;
-  max-height: calc(85vh - 120px);
+  height: auto;
+  max-height: 75vh;
   scrollbar-gutter: stable;
   -webkit-overflow-scrolling: touch;
-  -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
+  scroll-behavior: smooth;
+}
+
+.auth-form::-webkit-scrollbar {
+  width: 8px;
+}
+
+.auth-form::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.auth-form::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: 10px;
+}
+
+.auth-form .form-group:last-child {
+  margin-bottom: 30px;
 }
 
 @media (max-width: 480px) {
@@ -502,55 +520,97 @@
 
 /* Responsive */
 @media (max-width: 480px) {
-  .login-container {
-    width: 90%;
+  .login-page {
     padding: 10px;
+    height: 100%;
+    min-height: 100vh;
+    justify-content: flex-start;
+    padding-top: 20px;
+  }
+
+  .login-container {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
   }
 
   .login-card {
     padding: 15px;
-    margin: 10px;
+    margin: 10px 0;
     height: auto;
-    min-height: 450px;
+    min-height: auto;
+    max-height: none;
+    border-radius: 15px;
   }
 
   .auth-form {
-    padding: 10px 5px;
+    padding: 15px 10px;
     max-height: none;
-    overflow-y: visible;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .auth-form input,
   .auth-form select {
-    padding: 12px;
+    padding: 14px;
     font-size: 16px;
+    margin-bottom: 10px;
   }
 
   .auth-tabs {
-    margin: -15px -15px 20px;
-    border-radius: 20px 20px 0 0;
+    margin: -15px -15px 15px;
+    border-radius: 15px 15px 0 0;
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 10;
   }
 
   .tab-btn {
-    padding: 12px;
-    font-size: 14px;
+    padding: 15px;
+    font-size: 16px;
+    flex: 1;
+    text-align: center;
   }
 
   .login-header {
-    margin-bottom: 20px;
+    margin-bottom: 15px;
+    padding: 0 10px;
   }
 
   .login-header h1 {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
+    line-height: 1.2;
   }
 
   .form-group {
-    margin-bottom: 12px;
+    margin-bottom: 15px;
   }
 
   .auth-form button {
-    margin-top: 15px;
-    padding: 12px;
+    margin-top: 20px;
+    padding: 15px;
+    font-size: 16px;
+    height: 50px;
+  }
+
+  .password-input-wrapper {
+    margin-bottom: 15px;
+  }
+
+  #signup-form {
+    padding-bottom: 80px;
+  }
+
+  .form-links {
+    margin-top: 20px;
+  }
+
+  .forgot-password-modal .modal-content {
+    width: 95%;
+    margin: 20px auto;
+    padding: 20px;
   }
 }
 
