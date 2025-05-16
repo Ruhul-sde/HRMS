@@ -758,7 +758,6 @@ def admin_attendance_report():
     if emp_id:
         year, month_num = map(int, month.split('-'))
 
-        ```python
         # Get days in the selected month
         days_in_month = calendar.monthrange(year, month_num)[1]
         month_dates = [f"{month}-{str(day).zfill(2)}" for day in range(1, days_in_month + 1)]
