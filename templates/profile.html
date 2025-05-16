@@ -35,11 +35,15 @@
                     <div class="profile-cover"></div>
                     <div class="profile-info">
                         <div class="profile-avatar">
-                            {{ user.name[:1] }}
+                            {% if user.profile_pic_path %}
+                                <img src="{{ url_for('static', filename=user.profile_pic_path) }}" alt="{{ user.name }}" class="avatar-image">
+                            {% else %}
+                                <div class="avatar-text">{{ user.name[:1] | upper }}</div>
+                            {% endif %}
                         </div>
                         <h2 class="profile-name">{{ user.name }}</h2>
                         <div class="profile-role">{{ user.role|capitalize }}</div>
-                        <div class="profile-id">{{ user.employee_id }}</div>
+                        <div class="profile-id"><i class="fas fa-id-badge"></i> {{ user.employee_id }}</div>
 
                         <div class="profile-stats">
                             <div class="stat-item">
