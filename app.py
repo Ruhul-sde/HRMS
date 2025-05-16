@@ -132,7 +132,7 @@ def reset_password():
 def logout():
     session.pop('username', None)
     session.pop('role', None)
-    return redirect(url_for('home'))
+    return redirect(url_for('login'))
 
 @app.route('/dashboard')
 def dashboard():
