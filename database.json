@@ -344,7 +344,8 @@
   "settings": {
     "departments": [
       "Information Technology",
-      "Human Resources"
+      "Human Resources",
+      "Finance Department"
     ],
     "job_roles": [
       "Team Lead",
