@@ -105,6 +105,21 @@
       "department": "IT",
       "job_role": "Support Engineer",
       "mobile": "7894561230"
+    },
+    "kami@akshay.com": {
+      "password": "Welcome@1",
+      "name": "Kamini Chandorkar",
+      "mobile": "09004000388",
+      "department": "IT",
+      "job_role": "Software Engineer",
+      "email": "kami@akshay.com",
+      "role": "employee",
+      "employee_id": "EMP009",
+      "manager": "admin",
+      "latitude": 28.7041,
+      "longitude": 77.1025,
+      "location_name": "Custom Location",
+      "join_date": "2025-05-16"
     }
   },
   "locations": {
