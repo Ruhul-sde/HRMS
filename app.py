@@ -13,10 +13,11 @@ app = Flask(__name__)
 app.secret_key = config.SECRET_KEY
 
 @app.route('/')
-def home():
-    if 'username' in session:
-        return redirect(url_for('dashboard'))
-    return render_template('login.html')
+def login():
+    db = get_db()
+    departments = db.get('settings', {}).get('departments', ['IT', 'HR', 'Finance', 'Marketing', 'Operations'])
+    job_roles = db.get('settings', {}).get('job_roles', [])
+    return render_template('login.html', departments=departments, job_roles=job_roles)
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -879,16 +880,16 @@ def update_leave_balance():
 
     data = request.json
     db = get_db()
-    
+
     if 'settings' not in db:
         db['settings'] = {}
-    
+
     db['settings']['leave_balance'] = {
         'pl': data['pl'],
         'cl': data['cl'],
         'ml': data['ml']
     }
-    
+
     save_db(db)
     return jsonify({'success': True})
 
@@ -899,7 +900,7 @@ def update_department():
 
     data = request.json
     db = get_db()
-    
+
     if 'settings' not in db:
         db['settings'] = {}
     if 'departments' not in db['settings']:
@@ -910,7 +911,7 @@ def update_department():
         db['settings']['departments'][idx] = data['name']
     else:  # Add
         db['settings']['departments'].append(data['name'])
-    
+
     save_db(db)
     return jsonify({'success': True})
 
@@ -931,7 +932,7 @@ def update_job_role():
 
     data = request.json
     db = get_db()
-    
+
     if 'settings' not in db:
         db['settings'] = {}
     if 'job_roles' not in db['settings']:
@@ -942,7 +943,7 @@ def update_job_role():
         db['settings']['job_roles'][idx] = data['name']
     else:  # Add
         db['settings']['job_roles'].append(data['name'])
-    
+
     save_db(db)
     return jsonify({'success': True})
 
@@ -963,7 +964,7 @@ def admin_settings():
 
     db = get_db()
     settings = db.get('settings', {})
-    
+
     leave_settings = settings.get('leave_balance', {'pl': 12, 'cl': 6, 'ml': 7})
     departments = settings.get('departments', [])
     job_roles = settings.get('job_roles', [])
