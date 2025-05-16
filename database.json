@@ -120,6 +120,21 @@
       "longitude": 77.1025,
       "location_name": "Custom Location",
       "join_date": "2025-05-16"
+    },
+    "testing@akshay.com": {
+      "password": "Testing@123",
+      "name": "Testing User",
+      "mobile": "6291674191",
+      "department": "Finance Department",
+      "job_role": "Trainee engineer",
+      "email": "testing@akshay.com",
+      "role": "employee",
+      "employee_id": "EMP010",
+      "manager": "admin",
+      "latitude": 22.497473043976605,
+      "longitude": 88.36115288589133,
+      "location_name": "Custom Location",
+      "join_date": "2025-05-16"
     }
   },
   "locations": {
@@ -227,6 +242,15 @@
         "latitude": 22.49746990053728,
         "longitude": 88.36116051248091
       }
+    },
+    "EMP010": {
+      "2025-05-16": {
+        "check_in": "11:56 AM",
+        "location": "Custom Location",
+        "status": "Present",
+        "latitude": 22.497468019535663,
+        "longitude": 88.36112476665488
+      }
     }
   },
   "leaves": {
@@ -312,12 +336,14 @@
   "check_ins": {
     "EMP005": {},
     "EMP007": {},
-    "EMP008": {}
+    "EMP008": {},
+    "EMP010": {}
   },
   "check_outs": {
     "EMP005": {},
     "EMP007": {},
-    "EMP008": {}
+    "EMP008": {},
+    "EMP010": {}
   },
   "notices": {
     "notice1": {
