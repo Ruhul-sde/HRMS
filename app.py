@@ -505,16 +505,38 @@ def update_profile():
         return jsonify({'success': False, 'message': 'Not logged in'})
 
     try:
-        data = request.json
         db = get_db()
-
-        # Update user data
+        
+        # Update basic info
         db['users'][session['username']].update({
-            'name': data.get('name'),
-            'mobile': data.get('mobile'),
-            'department': data.get('department'),
-            'job_role': data.get('job_role')
+            'name': request.form.get('name'),
+            'mobile': request.form.get('mobile'),
+            'department': request.form.get('department'),
+            'job_role': request.form.get('job_role')
         })
+
+        # Handle file uploads
+        from utils.file_storage import save_uploaded_file
+        
+        if 'profile_pic' in request.files:
+            file_path = save_uploaded_file(request.files['profile_pic'], 'profile')
+            if file_path:
+                db['users'][session['username']]['profile_pic_path'] = file_path
+
+        if 'pan_card' in request.files:
+            file_path = save_uploaded_file(request.files['pan_card'], 'pan')
+            if file_path:
+                db['users'][session['username']]['pan_card_path'] = file_path
+
+        if 'aadhar_card' in request.files:
+            file_path = save_uploaded_file(request.files['aadhar_card'], 'aadhar')
+            if file_path:
+                db['users'][session['username']]['aadhar_card_path'] = file_path
+
+        if 'resume' in request.files:
+            file_path = save_uploaded_file(request.files['resume'], 'resume')
+            if file_path:
+                db['users'][session['username']]['resume_path'] = file_path
 
         save_db(db)
         return jsonify({'success': True, 'message': 'Profile updated successfully'})

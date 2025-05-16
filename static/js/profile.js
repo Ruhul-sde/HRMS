@@ -34,15 +34,6 @@ function updateProfile(event) {
 
     const formData = new FormData(form);
 
-    // Add file inputs
-    const fileInputs = ['profile_pic', 'pan_card', 'aadhar_card', 'resume'];
-    fileInputs.forEach(inputId => {
-        const fileInput = document.getElementById(inputId);
-        if (fileInput && fileInput.files.length > 0) {
-            formData.append(inputId, fileInput.files[0]);
-        }
-    });
-
     fetch('/api/update_profile', {
         method: 'POST',
         body: formData
