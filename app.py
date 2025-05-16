@@ -20,7 +20,7 @@ def login():
     return render_template('login.html', departments=departments, job_roles=job_roles)
 
 @app.route('/login', methods=['POST'])
-def login():
+def login_post():
     username = request.form.get('username')
     password = request.form.get('password')
 
