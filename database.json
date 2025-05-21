@@ -250,6 +250,13 @@
         "status": "Present",
         "latitude": 22.497468019535663,
         "longitude": 88.36112476665488
+      },
+      "2025-05-20": {
+        "check_in": "11:21 AM",
+        "location": "Custom Location",
+        "status": "Present",
+        "latitude": 22.49742861270348,
+        "longitude": 88.36104232475257
       }
     }
   },
@@ -330,6 +337,17 @@
         "manager": "admin",
         "applied_on": "2025-04-16",
         "comment": ""
+      }
+    },
+    "EMP010": {
+      "b981bff5-394d-417d-bf55-8c518009c549": {
+        "start_date": "2025-05-20",
+        "end_date": "2025-05-21",
+        "reason": "i want this leave",
+        "type": "PL",
+        "status": "pending",
+        "manager": "admin",
+        "applied_on": "2025-05-20"
       }
     }
   },
